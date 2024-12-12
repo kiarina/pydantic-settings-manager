@@ -33,7 +33,7 @@ def test_single_settings_manager_user_config() -> None:
 def test_single_settings_manager_cli_args():
     """Test command line arguments"""
     manager = SingleSettingsManager(TestSettings)
-    manager.cli_args = {"value": 100}
+    manager.cli_args["value"] = 100
 
     assert manager.settings.name == "default"
     assert manager.settings.value == 100
@@ -43,7 +43,7 @@ def test_single_settings_manager_precedence():
     """Test settings precedence"""
     manager = SingleSettingsManager(TestSettings)
     manager.user_config = {"name": "from_file", "value": 42}
-    manager.cli_args = {"value": 100}
+    manager.cli_args["value"] = 100
 
     assert manager.settings.name == "from_file"  # from user_config
     assert manager.settings.value == 100  # from cli_args
