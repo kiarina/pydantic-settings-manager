@@ -2,7 +2,7 @@
 Base classes for settings managers.
 """
 from abc import ABC, abstractmethod
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Dict, Generic, Type, TypeVar
 
 from pydantic_settings import BaseSettings
 
@@ -31,7 +31,7 @@ class BaseSettingsManager(ABC, Generic[T]):
         self.settings_cls = settings_cls
         """The settings class being managed"""
 
-        self.user_config: dict[str, Any] = {}
+        self.user_config: Dict[str, Any] = {}
         """User configuration dictionary"""
 
     @property

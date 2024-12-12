@@ -1,7 +1,7 @@
 """
 Single settings manager implementation.
 """
-from typing import Any, Dict, Type
+from typing import Any, Dict, Type, Union
 
 from .base import BaseSettingsManager, T
 from .utils import NestedDict, nested_dict, update_dict
@@ -58,7 +58,7 @@ class SingleSettingsManager(BaseSettingsManager[T]):
         self.user_config: Dict[str, Any] = {}
         """User configuration"""
 
-        self._settings: T | None = None
+        self._settings: Union[T, None] = None
         """Cached settings"""
 
     @property
