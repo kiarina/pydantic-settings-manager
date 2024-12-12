@@ -8,3 +8,7 @@ __pycache__/
 
 .coverage
 .dmypy.json
+
+dist/
+build/
+*.egg-info/
