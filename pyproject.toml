@@ -1,0 +1,71 @@
+[tool.poetry]
+name = "pydantic-settings-manager"
+version = "0.1.0"
+description = "A library for managing Pydantic settings objects"
+authors = ["kiarina <kiarinadawa@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/kiarina/pydantic-settings-manager"
+repository = "https://github.com/kiarina/pydantic-settings-manager"
+documentation = "https://github.com/kiarina/pydantic-settings-manager"
+keywords = ["pydantic", "settings", "configuration"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+packages = [
+    { include = "pydantic_settings_manager" }
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pydantic = "^2.0.0"
+pydantic-settings = "^2.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+black = "^23.7.0"
+isort = "^5.12.0"
+mypy = "^1.5.0"
+ruff = "^0.0.284"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+select = ["E", "F", "B", "I"]
