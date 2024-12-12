@@ -1,4 +1,5 @@
 .PHONY: format lint test clean build publish
+.DEFAULT_GOAL := build
 
 format:
 	poetry run black .
@@ -23,7 +24,7 @@ clean:
 	find . -type d -name ".mypy_cache" -exec rm -rf {} +
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 
-build: clean
+build: format lint test clean
 	poetry build
 
 publish: build
