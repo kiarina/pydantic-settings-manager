@@ -17,20 +17,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
       with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
+        version: "latest"
+    - name: Set up Python ${{ matrix.python-version }}
+      run: uv python install ${{ matrix.python-version }}
     - name: Install dependencies
-      run: poetry install
+      run: uv sync --dev
     - name: Run tests
-      run: poetry run make test
+      run: uv run make test
     - name: Run format check
-      run: poetry run ruff check .
+      run: uv run ruff check .
     - name: Run linters
-      run: poetry run make lint
+      run: uv run make lint
 
   publish:
     needs: test
@@ -39,17 +39,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
       with:
-        python-version: "3.8"
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
+        version: "latest"
+    - name: Set up Python
+      run: uv python install 3.8
     - name: Install dependencies
-      run: poetry install
+      run: uv sync --dev
     - name: Build and publish
       env:
-        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
       run: |
-        poetry build
-        poetry publish
+        uv build
+        uv publish

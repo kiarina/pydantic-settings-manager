@@ -2,14 +2,14 @@
 .DEFAULT_GOAL := build
 
 format:
-	poetry run ruff check --fix .
+	uv run ruff check --fix .
 
 lint:
-	poetry run ruff check .
-	poetry run mypy .
+	uv run ruff check .
+	uv run mypy .
 
 test:
-	poetry run pytest --cov=pydantic_settings_manager tests/
+	uv run pytest --cov=pydantic_settings_manager tests/
 
 clean:
 	rm -rf dist/
@@ -24,7 +24,7 @@ clean:
 	find . -type d -name ".ruff_cache" -exec rm -rf {} +
 
 build: format lint test clean
-	poetry build
+	uv build
 
 publish: build
-	poetry publish
+	uv publish

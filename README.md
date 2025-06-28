@@ -93,17 +93,17 @@ This project uses modern Python development tools:
 
 ```bash
 # Install dependencies
-poetry install
+uv sync --dev
 
 # Format code
-poetry run ruff check --fix .
+uv run ruff check --fix .
 
 # Run linting
-poetry run ruff check .
-poetry run mypy .
+uv run ruff check .
+uv run mypy .
 
 # Run tests
-poetry run pytest --cov=pydantic_settings_manager tests/
+uv run pytest --cov=pydantic_settings_manager tests/
 
 # Build and test everything
 make build
