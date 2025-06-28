@@ -20,7 +20,30 @@ pip install pydantic-settings-manager
 
 ## Quick Start
 
+### Project Structure
+
+Here's an example project structure for using pydantic-settings-manager:
+
+```
+your_project/
+├── hoge/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── client.py
+│   └── registry.py
+├── fuga/
+│   ├── __init__.py
+│   ├── settings.py
+│   ├── client.py
+│   └── registry.py
+├── bootstrap.py
+├── __main__.py
+└── config.yaml
+```
+
 ### Single Settings Manager
+
+`SingleSettingsManager` is ideal when you have a single configuration that needs to be loaded from multiple sources (config files, environment variables, CLI arguments). It automatically merges these sources with CLI arguments taking the highest precedence.
 
 ```python
 # hoge/__init__.py
@@ -59,6 +82,8 @@ def create_hoge_client():
 ```
 
 ### Mapped Settings Manager
+
+`MappedSettingsManager` is perfect when you need to manage multiple configurations (e.g., different environments like dev/staging/prod, or multiple API clients). You can switch between configurations at runtime using keys.
 
 ```python
 # fuga/__init__.py
@@ -99,6 +124,8 @@ def create_fuga_client(config_key: str = ""):
 
 ### Bootstrap
 
+The bootstrap process loads configuration from external sources (like YAML files) and applies them to your settings managers. This allows you to centralize configuration management and easily switch between different environments.
+
 ```yaml
 # config.yaml
 hoge:
@@ -135,7 +162,9 @@ def bootstrap():
                 settings_manager.clear()
 ```
 
-### CLI
+### CLI Integration
+
+You can integrate command-line arguments to override specific settings at runtime. This is useful for debugging, testing different configurations, or providing runtime flexibility without modifying configuration files.
 
 ```python
 # __main__.py
