@@ -14,13 +14,13 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
@@ -31,8 +31,6 @@ homepage = "https://github.com/kiarina/pydantic-settings-manager"
 repository = "https://github.com/kiarina/pydantic-settings-manager"
 documentation = "https://github.com/kiarina/pydantic-settings-manager"
 
-
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -40,10 +38,8 @@ build-backend = "hatchling.build"
 [tool.setuptools.package-data]
 pydantic_settings_manager = ["py.typed"]
 
-
-
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -58,7 +54,7 @@ warn_unreachable = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
+target-version = "py39"
 fix = true
 
 [tool.ruff.lint]
@@ -92,5 +88,3 @@ dev = [
     "mypy>=1.14.1",
     "ruff>=0.12.1",
 ]
-
-
