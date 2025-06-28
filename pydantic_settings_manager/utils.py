@@ -2,12 +2,12 @@
 Utility functions for dictionary operations.
 """
 from collections import defaultdict
-from typing import Any, Dict
+from typing import Any
 
 from .types import NestedDict
 
 
-def diff_dict(base: Dict[str, Any], target: Dict[str, Any]) -> Dict[str, Any]:
+def diff_dict(base: dict[str, Any], target: dict[str, Any]) -> dict[str, Any]:
     """
     Get the difference between two dictionaries.
     Only includes keys where the values are different.
@@ -27,7 +27,7 @@ def diff_dict(base: Dict[str, Any], target: Dict[str, Any]) -> Dict[str, Any]:
     return result
 
 
-def update_dict(base: Dict[str, Any], update: Dict[str, Any]) -> Dict[str, Any]:
+def update_dict(base: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
     """
     Update a dictionary with another dictionary.
     Performs a deep update.

@@ -3,7 +3,7 @@ Mapped settings manager implementation.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Generic, Type
+from typing import Any, Generic
 
 from pydantic import BaseModel, Field
 from pydantic.main import create_model
@@ -30,7 +30,7 @@ class SettingsMap(BaseModel, Generic[T]):
     key: str = ""
     """The key of the currently active settings"""
 
-    map: Dict[str, T] = Field(default_factory=dict)
+    map: dict[str, T] = Field(default_factory=dict)
     """A dictionary mapping keys to settings objects"""
 
 
@@ -80,20 +80,20 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         ```
     """
 
-    def __init__(self, settings_cls: Type[T]):
+    def __init__(self, settings_cls: type[T]):
         """
         Initialize the settings manager.
 
         Args:
             settings_cls: The settings class to manage
         """
-        self.settings_cls: Type[T] = settings_cls
+        self.settings_cls: type[T] = settings_cls
         """The settings class being managed"""
 
         self.cli_args: SettingsMap[T] = SettingsMap[T]()
         """Command line arguments"""
 
-        self.user_config: Dict[str, Any] = {}
+        self.user_config: dict[str, Any] = {}
         """User configuration"""
 
         self.system_settings: T = settings_cls()
@@ -128,7 +128,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         self.clear()
 
     @property
-    def _cli_args_config(self) -> Dict[str, Any]:
+    def _cli_args_config(self) -> dict[str, Any]:
         """
         Get the command line arguments as a dictionary.
 
@@ -146,7 +146,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         return diff_dict(base, target)
 
     @property
-    def _system_settings_config(self) -> Dict[str, Any]:
+    def _system_settings_config(self) -> dict[str, Any]:
         """
         Get the system settings as a dictionary.
 
@@ -180,7 +180,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         DynamicMapSettings = create_model(
             "DynamicMapSettings",
             key=(str, ""),
-            map=(Dict[str, self.settings_cls], {}),  # type: ignore[name-defined]
+            map=(dict[str, self.settings_cls], {}),  # type: ignore[name-defined]
             __base__=SettingsMap[T],
         )
 
@@ -215,7 +215,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
             if not self.map_settings.map:
                 settings = self.settings_cls(**self.system_settings.model_dump())
             else:
-                key = list(self.map_settings.map.keys())[0]
+                key = next(iter(self.map_settings.map.keys()))
                 settings = self.map_settings.map[key]
         else:
             if self.map_settings.key not in self.map_settings.map:
@@ -272,7 +272,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         return self.map_settings.key
 
     @property
-    def all_settings(self) -> Dict[str, T]:
+    def all_settings(self) -> dict[str, T]:
         """
         Get all settings.
 

@@ -1,13 +1,12 @@
-[tool.poetry]
+[project]
 name = "pydantic-settings-manager"
 version = "0.1.2"
 description = "A library for managing Pydantic settings objects"
-authors = ["kiarina <kiarinadawa@gmail.com>"]
-license = "MIT"
+authors = [
+    { name = "kiarina", email = "kiarinadawa@gmail.com" }
+]
+license = { text = "MIT" }
 readme = "README.md"
-homepage = "https://github.com/kiarina/pydantic-settings-manager"
-repository = "https://github.com/kiarina/pydantic-settings-manager"
-documentation = "https://github.com/kiarina/pydantic-settings-manager"
 keywords = ["pydantic", "settings", "configuration"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -15,47 +14,32 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-packages = [
-    { include = "pydantic_settings_manager" }
+requires-python = ">=3.9"
+dependencies = [
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-pydantic = "^2.0.0"
-pydantic-settings = "^2.0.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.0"
-pytest-cov = "^4.1.0"
-black = "^23.7.0"
-isort = "^5.12.0"
-mypy = "^1.5.0"
-ruff = "^0.0.284"
+[project.urls]
+homepage = "https://github.com/kiarina/pydantic-settings-manager"
+repository = "https://github.com/kiarina/pydantic-settings-manager"
+documentation = "https://github.com/kiarina/pydantic-settings-manager"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [tool.setuptools.package-data]
 pydantic_settings_manager = ["py.typed"]
 
-[tool.black]
-line-length = 100
-target-version = ["py38"]
-
-[tool.isort]
-profile = "black"
-line_length = 100
-multi_line_output = 3
-
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -70,5 +54,37 @@ warn_unreachable = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py38"
-select = ["E", "F", "B", "I"]
+target-version = "py39"
+fix = true
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "RUF", # ruff-specific rules
+]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["pydantic_settings_manager"]
+
+[dependency-groups]
+test = [
+    "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
+]
+lint = [
+    "mypy>=1.14.1",
+    "ruff>=0.12.1",
+]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
+    "mypy>=1.14.1",
+    "ruff>=0.12.1",
+]

@@ -7,8 +7,8 @@ from pydantic_settings import BaseSettings
 from pydantic_settings_manager import MappedSettingsManager
 
 
-class TestSettings(BaseSettings):
-    """Test settings class"""
+class ExampleSettings(BaseSettings):
+    """Example settings class for testing"""
 
     name: str = "default"
     value: int = 0
@@ -16,15 +16,15 @@ class TestSettings(BaseSettings):
 
 def test_mapped_settings_manager_init():
     """Test initialization"""
-    manager = MappedSettingsManager(TestSettings)
-    assert isinstance(manager.settings, TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
+    assert isinstance(manager.settings, ExampleSettings)
     assert manager.settings.name == "default"
     assert manager.settings.value == 0
 
 
 def test_mapped_settings_manager_user_config():
     """Test user configuration"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -39,7 +39,7 @@ def test_mapped_settings_manager_user_config():
 
 def test_mapped_settings_manager_cli_args():
     """Test command line arguments"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -56,7 +56,7 @@ def test_mapped_settings_manager_cli_args():
 
 def test_mapped_settings_manager_invalid_key():
     """Test invalid key"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -72,7 +72,7 @@ def test_mapped_settings_manager_invalid_key():
 
 def test_mapped_settings_manager_get_by_key():
     """Test get settings by key"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -92,7 +92,7 @@ def test_mapped_settings_manager_get_by_key():
 
 def test_mapped_settings_manager_has_key():
     """Test has key"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -105,7 +105,7 @@ def test_mapped_settings_manager_has_key():
 
 def test_mapped_settings_manager_active_key():
     """Test active key"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -121,7 +121,7 @@ def test_mapped_settings_manager_active_key():
 
 def test_mapped_settings_manager_all_settings():
     """Test all settings"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},
@@ -139,7 +139,7 @@ def test_mapped_settings_manager_all_settings():
 
 def test_mapped_settings_manager_clear():
     """Test clear settings"""
-    manager = MappedSettingsManager(TestSettings)
+    manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 42},

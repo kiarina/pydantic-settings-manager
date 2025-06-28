@@ -1,7 +1,7 @@
 """
 Single settings manager implementation.
 """
-from typing import Any, Dict, Type, Union
+from typing import Any, Union
 
 from .base import BaseSettingsManager, T
 from .utils import NestedDict, nested_dict, update_dict
@@ -42,20 +42,20 @@ class SingleSettingsManager(BaseSettingsManager[T]):
         ```
     """
 
-    def __init__(self, settings_cls: Type[T]):
+    def __init__(self, settings_cls: type[T]):
         """
         Initialize the settings manager.
 
         Args:
             settings_cls: The settings class to manage
         """
-        self.settings_cls: Type[T] = settings_cls
+        self.settings_cls: type[T] = settings_cls
         """The settings class being managed"""
 
         self.cli_args: NestedDict = nested_dict()
         """Command line arguments"""
 
-        self.user_config: Dict[str, Any] = {}
+        self.user_config: dict[str, Any] = {}
         """User configuration"""
 
         self._settings: Union[T, None] = None
