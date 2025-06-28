@@ -119,15 +119,15 @@ make build
 ```bash
 # Quick setup for testing
 uv sync --group test
-uv run make test
+make test
 
 # Quick setup for linting
-uv sync --group lint  
-uv run make lint
+uv sync --group lint
+make lint
 
 # Full development environment
 uv sync --group dev
-uv run make build
+make build
 ```
 
 ## Documentation
