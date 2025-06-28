@@ -674,30 +674,49 @@ dependencies = [
     { name = "pydantic-settings", version = "2.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
     { name = "mypy", version = "1.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "mypy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "pydantic-settings", version = "2.8.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "pydantic-settings", version = "2.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "pytest", version = "8.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pytest", version = "8.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "pytest-cov", version = "5.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pytest-cov", version = "6.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "ruff" },
 ]
+lint = [
+    { name = "mypy", version = "1.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "mypy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "ruff" },
+]
+test = [
+    { name = "pytest", version = "8.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "pytest", version = "8.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "pytest-cov", version = "5.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "pytest-cov", version = "6.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+]
 
 [package.metadata]
 requires-dist = [
-    { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.5.0" },
     { name = "pydantic", specifier = ">=2.0.0" },
     { name = "pydantic-settings", specifier = ">=2.0.0" },
-    { name = "pydantic-settings", marker = "extra == 'dev'", specifier = ">=2.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.4.0" },
-    { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=4.1.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
 ]
-provides-extras = ["dev"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = ">=1.14.1" },
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=5.0.0" },
+    { name = "ruff", specifier = ">=0.12.1" },
+]
+lint = [
+    { name = "mypy", specifier = ">=1.14.1" },
+    { name = "ruff", specifier = ">=0.12.1" },
+]
+test = [
+    { name = "pytest", specifier = ">=8.3.5" },
+    { name = "pytest-cov", specifier = ">=5.0.0" },
+]
 
 [[package]]
 name = "pygments"

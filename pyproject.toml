@@ -31,14 +31,7 @@ homepage = "https://github.com/kiarina/pydantic-settings-manager"
 repository = "https://github.com/kiarina/pydantic-settings-manager"
 documentation = "https://github.com/kiarina/pydantic-settings-manager"
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "mypy>=1.5.0",
-    "ruff>=0.6.0",
-    "pydantic-settings>=2.0.0",
-]
+
 
 [build-system]
 requires = ["hatchling"]
@@ -83,5 +76,21 @@ ignore = []
 
 [tool.ruff.lint.isort]
 known-first-party = ["pydantic_settings_manager"]
+
+[dependency-groups]
+test = [
+    "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
+]
+lint = [
+    "mypy>=1.14.1",
+    "ruff>=0.12.1",
+]
+dev = [
+    "pytest>=8.3.5",
+    "pytest-cov>=5.0.0",
+    "mypy>=1.14.1",
+    "ruff>=0.12.1",
+]
 
 

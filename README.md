@@ -83,17 +83,22 @@ assert settings.value == 100
 
 ## Development
 
-This project uses modern Python development tools:
+This project uses modern Python development tools with flexible dependency groups:
 
 - **ruff**: Fast linter and formatter (replaces black, isort, and flake8)
 - **mypy**: Static type checking
 - **pytest**: Testing framework with coverage reporting
+- **uv**: Fast Python package manager with PEP 735 dependency groups support
 
 ### Setup
 
 ```bash
-# Install dependencies
-uv sync --dev
+# Install all development dependencies
+uv sync --group dev
+
+# Or install specific dependency groups
+uv sync --group test    # Testing tools only
+uv sync --group lint    # Linting tools only
 
 # Format code
 uv run ruff check --fix .
@@ -107,6 +112,22 @@ uv run pytest --cov=pydantic_settings_manager tests/
 
 # Build and test everything
 make build
+```
+
+### Development Workflow
+
+```bash
+# Quick setup for testing
+uv sync --group test
+uv run make test
+
+# Quick setup for linting
+uv sync --group lint  
+uv run make lint
+
+# Full development environment
+uv sync --group dev
+uv run make build
 ```
 
 ## Documentation
