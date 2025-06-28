@@ -2,11 +2,10 @@
 .DEFAULT_GOAL := build
 
 format:
-	poetry run black .
-	poetry run isort .
+	poetry run ruff check --fix .
 
 lint:
-	poetry run ruff .
+	poetry run ruff check .
 	poetry run mypy .
 
 test:

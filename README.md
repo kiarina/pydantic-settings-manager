@@ -81,6 +81,34 @@ assert settings.name == "production"
 assert settings.value == 100
 ```
 
+## Development
+
+This project uses modern Python development tools:
+
+- **ruff**: Fast linter and formatter (replaces black, isort, and flake8)
+- **mypy**: Static type checking
+- **pytest**: Testing framework with coverage reporting
+
+### Setup
+
+```bash
+# Install dependencies
+poetry install
+
+# Format code
+poetry run ruff check --fix .
+
+# Run linting
+poetry run ruff check .
+poetry run mypy .
+
+# Run tests
+poetry run pytest --cov=pydantic_settings_manager tests/
+
+# Build and test everything
+make build
+```
+
 ## Documentation
 
 For more detailed documentation, please see the [GitHub repository](https://github.com/kiarina/pydantic-settings-manager).

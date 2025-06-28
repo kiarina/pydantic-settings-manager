@@ -6,8 +6,8 @@ from pydantic_settings import BaseSettings
 from pydantic_settings_manager import SingleSettingsManager
 
 
-class TestSettings(BaseSettings):
-    """Test settings class"""
+class ExampleSettings(BaseSettings):
+    """Example settings class for testing"""
 
     name: str = "default"
     value: int = 0
@@ -15,15 +15,15 @@ class TestSettings(BaseSettings):
 
 def test_single_settings_manager_init() -> None:
     """Test initialization"""
-    manager = SingleSettingsManager(TestSettings)
-    assert isinstance(manager.settings, TestSettings)
+    manager = SingleSettingsManager(ExampleSettings)
+    assert isinstance(manager.settings, ExampleSettings)
     assert manager.settings.name == "default"
     assert manager.settings.value == 0
 
 
 def test_single_settings_manager_user_config() -> None:
     """Test user configuration"""
-    manager = SingleSettingsManager(TestSettings)
+    manager = SingleSettingsManager(ExampleSettings)
     manager.user_config = {"name": "from_file", "value": 42}
 
     assert manager.settings.name == "from_file"
@@ -32,7 +32,7 @@ def test_single_settings_manager_user_config() -> None:
 
 def test_single_settings_manager_cli_args():
     """Test command line arguments"""
-    manager = SingleSettingsManager(TestSettings)
+    manager = SingleSettingsManager(ExampleSettings)
     manager.cli_args["value"] = 100
 
     assert manager.settings.name == "default"
@@ -41,7 +41,7 @@ def test_single_settings_manager_cli_args():
 
 def test_single_settings_manager_precedence():
     """Test settings precedence"""
-    manager = SingleSettingsManager(TestSettings)
+    manager = SingleSettingsManager(ExampleSettings)
     manager.user_config = {"name": "from_file", "value": 42}
     manager.cli_args["value"] = 100
 
@@ -51,7 +51,7 @@ def test_single_settings_manager_precedence():
 
 def test_single_settings_manager_clear():
     """Test clear settings"""
-    manager = SingleSettingsManager(TestSettings)
+    manager = SingleSettingsManager(ExampleSettings)
     manager.user_config = {"name": "from_file", "value": 42}
 
     # Get settings to cache them

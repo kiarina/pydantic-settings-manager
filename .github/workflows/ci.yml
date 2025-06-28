@@ -27,6 +27,8 @@ jobs:
       run: poetry install
     - name: Run tests
       run: poetry run make test
+    - name: Run format check
+      run: poetry run ruff check .
     - name: Run linters
       run: poetry run make lint
 
