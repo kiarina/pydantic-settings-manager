@@ -242,6 +242,52 @@ def main(name: str, key: str):
     # ...
 ```
 
+## Related Tools
+
+### pydantic-config-builder
+
+For complex projects with multiple configuration files, you might want to use [`pydantic-config-builder`](https://github.com/kiarina/pydantic-config-builder) to merge and build your YAML configuration files:
+
+```bash
+pip install pydantic-config-builder
+```
+
+This tool allows you to:
+- Merge multiple YAML files into a single configuration
+- Use base configurations with overlay files
+- Build different configurations for different environments
+- Support glob patterns and recursive merging
+
+Example workflow:
+```yaml
+# pydantic_config_builder.yml
+development:
+  input:
+    - base/*.yaml
+    - dev-overrides.yaml
+  output:
+    - config/dev.yaml
+
+production:
+  input:
+    - base/*.yaml
+    - prod-overrides.yaml
+  output:
+    - config/prod.yaml
+```
+
+Then use the generated configurations with your settings manager:
+```python
+import yaml
+from your_app import settings_manager
+
+# Load the built configuration
+with open("config/dev.yaml") as f:
+    config = yaml.safe_load(f)
+
+settings_manager.user_config = config
+```
+
 ## Development
 
 This project uses modern Python development tools with flexible dependency groups:
