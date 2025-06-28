@@ -7,9 +7,6 @@ authors = [
 ]
 license = { text = "MIT" }
 readme = "README.md"
-homepage = "https://github.com/kiarina/pydantic-settings-manager"
-repository = "https://github.com/kiarina/pydantic-settings-manager"
-documentation = "https://github.com/kiarina/pydantic-settings-manager"
 keywords = ["pydantic", "settings", "configuration"]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -28,6 +25,11 @@ dependencies = [
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
 ]
+
+[project.urls]
+homepage = "https://github.com/kiarina/pydantic-settings-manager"
+repository = "https://github.com/kiarina/pydantic-settings-manager"
+documentation = "https://github.com/kiarina/pydantic-settings-manager"
 
 [project.optional-dependencies]
 dev = [
