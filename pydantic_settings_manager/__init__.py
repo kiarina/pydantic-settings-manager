@@ -21,7 +21,7 @@ from .base import BaseSettingsManager
 from .mapped import MappedSettingsManager, SettingsMap
 from .single import SingleSettingsManager
 
-__version__ = "0.2.1"
+__version__ = "0.2.2"
 
 __all__ = [
     # Re-exports from pydantic_settings
