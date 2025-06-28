@@ -23,62 +23,143 @@ pip install pydantic-settings-manager
 ### Single Settings Manager
 
 ```python
+# hoge/__init__.py
+from .settings import settings_manager
+
+__all__ = ["settings_manager"]
+```
+
+```python
+# hoge/settings.py
 from pydantic_settings import BaseSettings
 from pydantic_settings_manager import SingleSettingsManager
 
-class MySettings(BaseSettings):
+class HogeSettings(BaseSettings):
     name: str = "default"
     value: int = 0
 
-# Create a settings manager
-manager = SingleSettingsManager(MySettings)
+settings_manager = SingleSettingsManager(HogeSettings)
+```
 
-# Update settings from a configuration file
-manager.user_config = {"name": "from_file", "value": 42}
+```python
+# hoge/client.py
+from .settings import HogeSettings
 
-# Update settings from command line arguments
-manager.cli_args = {"value": 100}
+class HogeClient:
+    def __init__(self, settings: HogeSettings):
+        self.settings = settings
+```
 
-# Get the current settings (combines both sources)
-settings = manager.settings
-assert settings.name == "from_file"  # from user_config
-assert settings.value == 100  # from cli_args (overrides user_config)
+```python
+# hoge/registry.py
+from .settings import settings_manager
+
+def create_hoge_client():
+    return HogeClient(settings_manager.settings)
 ```
 
 ### Mapped Settings Manager
 
 ```python
+# fuga/__init__.py
+from .settings import settings_manager
+
+__all__ = ["settings_manager"]
+```
+
+```python
+# fuga/settings.py
 from pydantic_settings import BaseSettings
 from pydantic_settings_manager import MappedSettingsManager
 
-class MySettings(BaseSettings):
+class FugaSettings(BaseSettings):
     name: str = "default"
-    value: int = 0
+    api_key: str = "***"
 
-# Create a settings manager
-manager = MappedSettingsManager(MySettings)
+settings_manager = MappedSettingsManager(FugaSettings)
+```
 
-# Set up multiple configurations
-manager.user_config = {
-    "map": {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
-    }
-}
+```python
+# fuga/client.py
+from .settings import FugaSettings
 
-# Select which configuration to use
-manager.set_cli_args("dev")
+class FugaClient:
+    def __init__(self, settings: FugaSettings):
+        self.settings = settings
+```
 
-# Get the current settings
-settings = manager.settings
-assert settings.name == "development"
-assert settings.value == 42
+```python
+# fuga/registry.py
+from .settings import settings_manager
 
-# Switch to a different configuration
-manager.set_cli_args("prod")
-settings = manager.settings
-assert settings.name == "production"
-assert settings.value == 100
+def create_fuga_client(config_key: str = ""):
+    settings = settings_manager.get_settings_by_key(config_key)
+    return FugaClient(settings)
+```
+
+### Bootstrap
+
+```yaml
+# config.yaml
+hoge:
+  name: "star"
+  value: 7
+fuga:
+  key: first
+  map:
+    first:
+      name: "first"
+      api_key: "***"
+    second:
+      name: "second"
+      api_key: "***"
+```
+
+```python
+# bootstrap.py
+import importlib
+import yaml
+
+from pydantic_settings_manager import BaseSettingsManager
+
+def bootstrap():
+    config = yaml.safe_load(open("/path/to/config.yaml"))
+
+    for module_name, user_config in config.items():
+        try:
+            module = importlib.import_module(module_name)
+            settings_manager = getattr(module, 'settings_manager', None)
+
+            if isinstance(settings_manager, BaseSettingsManager):
+                settings_manager.user_config = user_config
+                settings_manager.clear()
+```
+
+### CLI
+
+```python
+# __main__.py
+import click
+
+from .bootstrap import bootstrap
+from .hoge import settings_manager as hoge_settings_manager
+from .fuga import settings_manager as fuga_settings_manager
+
+@click.command
+@click.option("--name", type=str, default="", help="Name of the Hoge")
+@click.option("--key", type=str, default="", help="Key for Fuga settings")
+def main(name: str, key: str):
+    bootstrap()
+
+    if name:
+        hoge_settings_manager.cli_args["name"] = name
+        hoge_settings_manager.clear()
+
+    if key:
+        fuga_settings_manager.cli_args["key"] = key
+        fuga_settings_manager.clear()
+
+    # ...
 ```
 
 ## Development
