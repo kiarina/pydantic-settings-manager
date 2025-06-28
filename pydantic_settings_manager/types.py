@@ -1,6 +1,7 @@
-from typing import Any, DefaultDict, Union
+from collections import defaultdict
+from typing import Any, Union
 
-NestedDict = DefaultDict[str, Union["NestedDict", Any]]
+NestedDict = defaultdict[str, Union["NestedDict", Any]]
 """
 ネストした辞書型
 """

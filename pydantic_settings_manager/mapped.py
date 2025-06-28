@@ -3,7 +3,7 @@ Mapped settings manager implementation.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Generic
+from typing import Any, Generic
 
 from pydantic import BaseModel, Field
 from pydantic.main import create_model
@@ -180,7 +180,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         DynamicMapSettings = create_model(
             "DynamicMapSettings",
             key=(str, ""),
-            map=(Dict[str, self.settings_cls], {}),  # type: ignore[name-defined]
+            map=(dict[str, self.settings_cls], {}),  # type: ignore[name-defined]
             __base__=SettingsMap[T],
         )
 
