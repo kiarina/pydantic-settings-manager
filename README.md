@@ -20,9 +20,102 @@ pip install pydantic-settings-manager
 
 ## Quick Start
 
-### Project Structure
+### Basic Usage
 
-Here's an example project structure for using pydantic-settings-manager:
+Let's start with a simple example you can try immediately:
+
+```python
+from pydantic_settings import BaseSettings
+from pydantic_settings_manager import SingleSettingsManager
+
+# 1. Define your settings
+class AppSettings(BaseSettings):
+    app_name: str = "MyApp"
+    debug: bool = False
+    max_connections: int = 100
+
+# 2. Create a settings manager
+settings_manager = SingleSettingsManager(AppSettings)
+
+# 3. Use your settings
+settings = settings_manager.settings
+print(f"App: {settings.app_name}, Debug: {settings.debug}")
+```
+
+### Loading from Configuration Files
+
+You can load settings from external sources:
+
+```python
+# Load from a dictionary (could be from JSON, YAML, etc.)
+settings_manager.user_config = {
+    "app_name": "ProductionApp",
+    "debug": False,
+    "max_connections": 500
+}
+
+settings = settings_manager.settings
+print(f"App: {settings.app_name}")  # Output: App: ProductionApp
+```
+
+### Command Line Overrides
+
+Override specific settings at runtime:
+
+```python
+# Simulate command line arguments
+settings_manager.cli_args["debug"] = True
+settings_manager.cli_args["max_connections"] = 50
+
+# Clear cache to apply changes
+settings_manager.clear()
+
+settings = settings_manager.settings
+print(f"Debug: {settings.debug}")  # Output: Debug: True
+print(f"Connections: {settings.max_connections}")  # Output: Connections: 50
+```
+
+### Multiple Configurations (Mapped Settings)
+
+For managing multiple environments or configurations:
+
+```python
+from pydantic_settings_manager import MappedSettingsManager
+
+# Create a mapped settings manager
+mapped_manager = MappedSettingsManager(AppSettings)
+
+# Configure multiple environments
+mapped_manager.user_config = {
+    "map": {
+        "development": {
+            "app_name": "MyApp-Dev",
+            "debug": True,
+            "max_connections": 10
+        },
+        "production": {
+            "app_name": "MyApp-Prod", 
+            "debug": False,
+            "max_connections": 1000
+        }
+    }
+}
+
+# Switch between configurations
+mapped_manager.set_cli_args("development")
+dev_settings = mapped_manager.settings
+print(f"Dev: {dev_settings.app_name}, Debug: {dev_settings.debug}")
+
+mapped_manager.set_cli_args("production")
+prod_settings = mapped_manager.settings
+print(f"Prod: {prod_settings.app_name}, Debug: {prod_settings.debug}")
+```
+
+## Advanced Usage
+
+### Project Structure for Large Applications
+
+For complex applications with multiple modules, you can organize your settings like this:
 
 ```
 your_project/
@@ -41,49 +134,7 @@ your_project/
 └── config.yaml
 ```
 
-### Single Settings Manager
-
-`SingleSettingsManager` is ideal when you have a single configuration that needs to be loaded from multiple sources (config files, environment variables, CLI arguments). It automatically merges these sources with CLI arguments taking the highest precedence.
-
-```python
-# hoge/__init__.py
-from .settings import settings_manager
-
-__all__ = ["settings_manager"]
-```
-
-```python
-# hoge/settings.py
-from pydantic_settings import BaseSettings
-from pydantic_settings_manager import SingleSettingsManager
-
-class HogeSettings(BaseSettings):
-    name: str = "default"
-    value: int = 0
-
-settings_manager = SingleSettingsManager(HogeSettings)
-```
-
-```python
-# hoge/client.py
-from .settings import HogeSettings
-
-class HogeClient:
-    def __init__(self, settings: HogeSettings):
-        self.settings = settings
-```
-
-```python
-# hoge/registry.py
-from .settings import settings_manager
-
-def create_hoge_client():
-    return HogeClient(settings_manager.settings)
-```
-
-### Mapped Settings Manager
-
-`MappedSettingsManager` is perfect when you need to manage multiple configurations (e.g., different environments like dev/staging/prod, or multiple API clients). You can switch between configurations at runtime using keys.
+### Module-based Settings Management
 
 ```python
 # fuga/__init__.py
