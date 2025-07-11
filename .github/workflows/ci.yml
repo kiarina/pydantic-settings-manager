@@ -32,6 +32,13 @@ jobs:
     - name: Run linters
       run: uv run make lint
 
+  status-check:
+    runs-on: ubuntu-latest
+    needs: test
+    name: Status Check
+    steps:
+    - run: echo "All tests passed successfully!"
+
   publish:
     needs: test
     runs-on: ubuntu-latest
