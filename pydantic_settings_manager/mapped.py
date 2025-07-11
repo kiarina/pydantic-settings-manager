@@ -112,7 +112,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
         """
         return self.settings_cls.__name__
 
-    def set_cli_args(self, key: str, value: T | None = None):
+    def set_cli_args(self, key: str, value: T | None = None) -> None:
         """
         Set the command line arguments.
 
@@ -194,7 +194,7 @@ class MappedSettingsManager(BaseSettingsManager[T]):
 
         return DynamicMapSettings(**config)
 
-    def clear(self):
+    def clear(self) -> None:
         """
         Clear the cached settings map.
         """

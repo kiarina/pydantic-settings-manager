@@ -87,7 +87,7 @@ class SingleSettingsManager(BaseSettingsManager[T]):
         config = update_dict(self.user_config, self.cli_args)
         return self.settings_cls(**config)
 
-    def clear(self):
+    def clear(self) -> None:
         """
         Clear the cached settings.
 
