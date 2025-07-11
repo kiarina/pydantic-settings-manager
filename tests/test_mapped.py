@@ -14,7 +14,7 @@ class ExampleSettings(BaseSettings):
     value: int = 0
 
 
-def test_mapped_settings_manager_init():
+def test_mapped_settings_manager_init() -> None:
     """Test initialization"""
     manager = MappedSettingsManager(ExampleSettings)
     assert isinstance(manager.settings, ExampleSettings)
@@ -22,7 +22,7 @@ def test_mapped_settings_manager_init():
     assert manager.settings.value == 0
 
 
-def test_mapped_settings_manager_user_config():
+def test_mapped_settings_manager_user_config() -> None:
     """Test user configuration"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -37,7 +37,7 @@ def test_mapped_settings_manager_user_config():
     assert manager.settings.value == 42
 
 
-def test_mapped_settings_manager_cli_args():
+def test_mapped_settings_manager_cli_args() -> None:
     """Test command line arguments"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -54,7 +54,7 @@ def test_mapped_settings_manager_cli_args():
     assert manager.settings.value == 100
 
 
-def test_mapped_settings_manager_invalid_key():
+def test_mapped_settings_manager_invalid_key() -> None:
     """Test invalid key"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -70,7 +70,7 @@ def test_mapped_settings_manager_invalid_key():
         _ = manager.settings
 
 
-def test_mapped_settings_manager_get_by_key():
+def test_mapped_settings_manager_get_by_key() -> None:
     """Test get settings by key"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -90,7 +90,7 @@ def test_mapped_settings_manager_get_by_key():
     assert prod_settings.value == 100
 
 
-def test_mapped_settings_manager_has_key():
+def test_mapped_settings_manager_has_key() -> None:
     """Test has key"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -103,7 +103,7 @@ def test_mapped_settings_manager_has_key():
     assert not manager.has_key("prod")
 
 
-def test_mapped_settings_manager_active_key():
+def test_mapped_settings_manager_active_key() -> None:
     """Test active key"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -119,7 +119,7 @@ def test_mapped_settings_manager_active_key():
     assert manager.active_key == "dev"
 
 
-def test_mapped_settings_manager_all_settings():
+def test_mapped_settings_manager_all_settings() -> None:
     """Test all settings"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
@@ -137,7 +137,7 @@ def test_mapped_settings_manager_all_settings():
     assert all_settings["prod"].value == 100
 
 
-def test_mapped_settings_manager_clear():
+def test_mapped_settings_manager_clear() -> None:
     """Test clear settings"""
     manager = MappedSettingsManager(ExampleSettings)
     manager.user_config = {
