@@ -45,7 +45,7 @@ class BaseSettingsManager(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def clear(self):
+    def clear(self) -> None:
         """
         Clear the current settings.
         This typically involves clearing any cached settings.
