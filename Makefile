@@ -1,4 +1,4 @@
-.PHONY: format lint test clean build publish
+.PHONY: format lint test clean build publish update-deps
 .DEFAULT_GOAL := build
 
 format:
@@ -28,3 +28,11 @@ build: format lint test clean
 
 publish: build
 	uv publish
+
+update-deps:
+	@echo "Updating dependencies..."
+	uv lock --upgrade
+	@echo "Dependencies updated successfully!"
+	@echo ""
+	@echo "To sync the updated dependencies, run:"
+	@echo "  uv sync --group dev"
