@@ -39,7 +39,7 @@ class SettingsManager(Generic[T]):
         manager.user_config = {"name": "app", "value": 42}
 
         # Override with CLI args
-        manager.cli_args["value"] = 100
+        manager.cli_args = {"value": 100}
 
         settings = manager.settings
         assert settings.name == "app"
@@ -53,15 +53,18 @@ class SettingsManager(Generic[T]):
 
         # Set multiple configurations
         manager.user_config = {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
+            "key": "dev",
+            "map": {
+                "dev": {"name": "development", "value": 42},
+                "prod": {"name": "production", "value": 100}
+            }
         }
 
         # Switch between configurations
-        manager.set_active_key("dev")
+        manager.active_key = "dev"
         dev_settings = manager.settings
 
-        manager.set_active_key("prod")
+        manager.active_key = "prod"
         prod_settings = manager.settings
         ```
     """
