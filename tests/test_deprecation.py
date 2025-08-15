@@ -48,10 +48,13 @@ def test_mapped_settings_manager_deprecation_warning() -> None:
         assert "v2.0.0" in str(w[0].message)
 
 
-def test_base_settings_manager_deprecation_warning() -> None:
-    """Test that BaseSettingsManager shows deprecation warning"""
+def test_base_settings_manager_no_deprecation_warning() -> None:
+    """Test that BaseSettingsManager does NOT show deprecation warning"""
 
     class TestManager(BaseSettingsManager[ExampleSettings]):
+        def __init__(self, settings_cls: type[ExampleSettings]):
+            super().__init__(settings_cls)
+
         @property
         def settings(self) -> ExampleSettings:
             return ExampleSettings()
@@ -64,12 +67,8 @@ def test_base_settings_manager_deprecation_warning() -> None:
 
         TestManager(ExampleSettings)
 
-        # Check that a warning was issued
-        assert len(w) == 1
-        assert issubclass(w[0].category, DeprecationWarning)
-        assert "BaseSettingsManager is deprecated" in str(w[0].message)
-        assert "SettingsManager instead" in str(w[0].message)
-        assert "v2.0.0" in str(w[0].message)
+        # Check that NO warning was issued
+        assert len(w) == 0
 
 
 def test_deprecated_classes_still_work() -> None:

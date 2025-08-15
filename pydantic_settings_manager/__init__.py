@@ -26,8 +26,11 @@ Features:
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# Import the original base class (not deprecated)
+from .base import BaseSettingsManager
+
 # Import deprecated classes with warnings
-from .deprecated import BaseSettingsManager, MappedSettingsManager, SingleSettingsManager
+from .deprecated import MappedSettingsManager, SingleSettingsManager
 
 # Import the unified manager and related components
 from .manager import DEFAULT_KEY, SettingsManager
@@ -40,7 +43,7 @@ __all__ = [
     "DEFAULT_KEY",
     # Re-exports from pydantic_settings
     "BaseSettings",
-    # DEPRECATED classes (will be removed in v2.0.0)
+    # Base class (not deprecated - used for inheritance)
     "BaseSettingsManager",        # DEPRECATED: Use SettingsManager instead
     "MappedSettingsManager",      # DEPRECATED: Use SettingsManager(MySettings, multi=True) instead
     "SettingsConfigDict",

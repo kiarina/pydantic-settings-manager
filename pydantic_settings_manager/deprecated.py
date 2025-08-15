@@ -9,41 +9,10 @@ from typing import TypeVar
 
 from pydantic_settings import BaseSettings
 
-from .base import BaseSettingsManager as _BaseSettingsManager
 from .mapped import MappedSettingsManager as _MappedSettingsManager
 from .single import SingleSettingsManager as _SingleSettingsManager
 
 T = TypeVar("T", bound=BaseSettings)
-
-
-class BaseSettingsManager(_BaseSettingsManager[T]):
-    """
-    DEPRECATED: Use SettingsManager instead.
-
-    This class will be removed in v2.0.0.
-
-    Migration guide:
-    ```python
-    # Old way
-    from pydantic_settings_manager import BaseSettingsManager
-    class MyManager(BaseSettingsManager[MySettings]):
-        # ... implementation
-
-    # New way
-    from pydantic_settings_manager import SettingsManager
-    manager = SettingsManager(MySettings)  # or SettingsManager(MySettings, multi=True)
-    ```
-    """
-
-    def __init__(self, settings_cls: type[T]):
-        warnings.warn(
-            "BaseSettingsManager is deprecated and will be removed in v2.0.0. "
-            "Use SettingsManager instead. "
-            "See migration guide: https://github.com/kiarina/pydantic-settings-manager#migration-guide",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        super().__init__(settings_cls)
 
 
 class SingleSettingsManager(_SingleSettingsManager[T]):
