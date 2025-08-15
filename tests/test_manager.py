@@ -104,13 +104,12 @@ def test_get_settings_by_key_single_mode() -> None:
     manager = SettingsManager(ExampleSettings)
     manager.user_config = {"name": "test", "value": 42}
 
-    # Should work with DEFAULT_KEY
-    settings = manager.get_settings_by_key(DEFAULT_KEY)
-    assert settings.name == "test"
-    assert settings.value == 42
+    # Should raise error in single mode
+    with pytest.raises(ValueError, match="Getting settings by key is only available in multi mode"):
+        manager.get_settings_by_key(DEFAULT_KEY)
 
-    # Should raise error for non-existent key
-    with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
+    # Should also raise error for any other key
+    with pytest.raises(ValueError, match="Getting settings by key is only available in multi mode"):
         manager.get_settings_by_key("nonexistent")
 
 
