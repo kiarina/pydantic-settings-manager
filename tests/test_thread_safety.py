@@ -10,6 +10,9 @@ from pydantic_settings import BaseSettings
 
 from pydantic_settings_manager import SettingsManager
 
+# Test configuration constants
+DEADLOCK_TEST_TIMEOUT_SECONDS = 30  # Timeout for deadlock detection tests
+
 
 class ThreadTestSettings(BaseSettings):
     """Test settings class"""
@@ -330,7 +333,7 @@ def test_deadlock_prevention() -> None:
 
     # Set a timeout to detect potential deadlocks
     start_time = time.time()
-    timeout = 30  # 30 seconds should be more than enough
+    timeout = DEADLOCK_TEST_TIMEOUT_SECONDS
 
     for thread in threads:
         remaining_time = timeout - (time.time() - start_time)

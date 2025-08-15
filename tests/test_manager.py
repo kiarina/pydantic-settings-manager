@@ -353,12 +353,11 @@ def test_user_config_getter_multi_mode() -> None:
     }
     assert config == expected
 
-    # Note: The current implementation returns a shallow copy,
-    # so modifying nested dictionaries will affect the internal state.
-    # This is acceptable for the current implementation.
+    # The implementation returns a deep copy,
+    # so modifying nested dictionaries should not affect the internal state.
     config["dev"]["name"] = "modified"
-    # The internal state is affected due to shallow copy
-    assert manager.user_config["dev"]["name"] == "modified"
+    # The internal state should not be affected due to deep copy
+    assert manager.user_config["dev"]["name"] == "development"
 
 
 def test_cli_args_getter() -> None:

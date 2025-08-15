@@ -104,6 +104,8 @@ class SettingsManager(Generic[T]):
         self._cache_valid: bool = False
         """Whether the cache is valid"""
 
+        # Use RLock (reentrant lock) instead of Lock because some methods may call
+        # other methods that also acquire the lock, requiring reentrancy to avoid deadlocks.
         self._lock: threading.RLock = threading.RLock()
         """Thread synchronization lock"""
 
@@ -153,12 +155,18 @@ class SettingsManager(Generic[T]):
     def user_config(self) -> dict[str, Any]:
         """
         Get the user configuration.
+
+        Returns:
+            A deep copy of the user configuration to prevent external modification
         """
+        import copy
+
         with self._lock:
             if self.multi:
-                return dict(self._user_config)  # Return a copy to prevent external modification
+                # Deep copy to prevent external modification
+                return copy.deepcopy(self._user_config)
             else:
-                return dict(self._user_config.get(DEFAULT_KEY, {}))
+                return copy.deepcopy(self._user_config.get(DEFAULT_KEY, {}))
 
     @user_config.setter
     def user_config(self, value: dict[str, Any]) -> None:
