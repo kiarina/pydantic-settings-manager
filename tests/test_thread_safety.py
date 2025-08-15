@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import pytest
 from pydantic_settings import BaseSettings
 
-from pydantic_settings_manager.manager import SettingsManager
+from pydantic_settings_manager import SettingsManager
 
 
 class ThreadTestSettings(BaseSettings):
