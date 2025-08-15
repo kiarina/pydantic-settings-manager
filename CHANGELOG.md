@@ -4,6 +4,36 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [1.0.0] - 2025-01-XX
+
+### Added
+- **NEW**: Unified `SettingsManager` class that replaces all previous managers
+- Thread-safe operations with proper locking mechanisms
+- Property-based API for more intuitive configuration management
+- Support for both single mode (`SettingsManager(MySettings)`) and multi mode (`SettingsManager(MySettings, multi=True)`)
+- Comprehensive migration guide in README
+- New `active_key` property for cleaner multi-configuration switching
+- Enhanced error messages with clear usage instructions
+- Thread safety tests and stress testing examples
+
+### Changed
+- **BREAKING**: `BaseSettingsManager`, `SingleSettingsManager`, and `MappedSettingsManager` are now deprecated
+- **BREAKING**: CLI args now use dict assignment (`manager.cli_args = {...}`) instead of dict access (`manager.cli_args[key] = value`)
+- **BREAKING**: Multi-mode configuration no longer requires `"map"` wrapper
+- Improved internal implementation with consistent map-based approach
+- Enhanced type safety with better generic type handling
+- Simplified API with property-based operations
+
+### Deprecated
+- `BaseSettingsManager`: Use `SettingsManager` instead (will be removed in v2.0.0)
+- `SingleSettingsManager`: Use `SettingsManager(MySettings)` instead (will be removed in v2.0.0)
+- `MappedSettingsManager`: Use `SettingsManager(MySettings, multi=True)` instead (will be removed in v2.0.0)
+
+### Fixed
+- Thread safety issues in concurrent environments
+- Cache invalidation edge cases
+- Memory leaks in long-running applications
+
 ## [0.2.2] - 2025-06-28
 
 ### Changed
