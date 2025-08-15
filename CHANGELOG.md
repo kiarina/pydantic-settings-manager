@@ -4,7 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [1.0.2] - 2025-01-27
+## [1.0.3] - 2025-08-15
+
+### Added
+- Added support for Python 3.13
+- Enhanced CI/CD pipeline to test against Python 3.13
+
+### Changed
+- Updated project classifiers to include Python 3.13 support
+- Improved compatibility testing across all supported Python versions (3.9-3.13)
+
+## [1.0.2] - 2025-08-15
 
 ### Fixed
 - Fixed `get_settings_by_key` method to properly validate single mode usage
@@ -12,14 +22,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Improved docstring for `get_settings_by_key` to clarify multi-mode requirement and empty key behavior
 - Enhanced API consistency by restricting multi-mode specific methods to multi-mode only
 
-## [1.0.1] - 2025-01-27
+## [1.0.1] - 2025-08-15
 
 ### Fixed
 - Fixed BaseSettingsManager export to use original implementation instead of deprecated wrapper
 - BaseSettingsManager no longer shows deprecation warning (only child classes do)
 - Maintained backward compatibility for existing BaseSettingsManager usage
 
-## [1.0.0] - 2025-01-27
+## [1.0.0] - 2025-08-15
 
 ### Added
 - **NEW**: Unified `SettingsManager` class that replaces all previous managers
