@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [1.0.0] - 2025-01-XX
+## [1.0.1] - 2025-01-27
+
+### Fixed
+- Fixed BaseSettingsManager export to use original implementation instead of deprecated wrapper
+- BaseSettingsManager no longer shows deprecation warning (only child classes do)
+- Maintained backward compatibility for existing BaseSettingsManager usage
+
+## [1.0.0] - 2025-01-27
 
 ### Added
 - **NEW**: Unified `SettingsManager` class that replaces all previous managers
