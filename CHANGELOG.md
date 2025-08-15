@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [1.0.2] - 2025-01-27
+
+### Fixed
+- Fixed `get_settings_by_key` method to properly validate single mode usage
+- Added proper error handling when `get_settings_by_key` is called in single mode
+- Improved docstring for `get_settings_by_key` to clarify multi-mode requirement and empty key behavior
+- Enhanced API consistency by restricting multi-mode specific methods to multi-mode only
+
 ## [1.0.1] - 2025-01-27
 
 ### Fixed

@@ -1,6 +1,6 @@
 [project]
 name = "pydantic-settings-manager"
-version = "1.0.1"
+version = "1.0.2"
 description = "A library for managing Pydantic settings objects"
 authors = [
     { name = "kiarina", email = "kiarinadawa@gmail.com" }

@@ -265,15 +265,24 @@ class SettingsManager(Generic[T]):
         """
         Get settings by specific key.
 
+        This method is only available in multi mode (multi=True).
+
         Args:
-            key: The key to get settings for
+            key: The key to get settings for. If empty, returns the current active settings.
 
         Returns:
             The settings object for the specified key
 
         Raises:
-            ValueError: If the key does not exist
+            ValueError: If called in single mode, or if the key does not exist in multi mode
         """
+        if not self.multi:
+            raise ValueError("Getting settings by key is only available in multi mode")
+
+        if not key:
+            # If no key is provided, return the default settings
+            return self.settings
+
         with self._lock:
             self._ensure_cache()
 
