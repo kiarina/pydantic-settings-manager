@@ -12,13 +12,18 @@ from .utils import update_dict
 
 T = TypeVar("T", bound=BaseSettings)
 
+DEFAULT_KEY = "default"
+"""
+Default key for single mode
+"""
+
 
 class SettingsManager(Generic[T]):
     """
     A unified settings manager that can handle both single and multiple configurations.
 
     This manager internally uses a map-based approach for consistency, where:
-    - For single mode (multi=False): uses a default key "default"
+    - For single mode (multi=False): uses a default key DEFAULT_KEY
     - For multi mode (multi=True): allows multiple named configurations
 
     Type Parameters:
@@ -129,7 +134,7 @@ class SettingsManager(Generic[T]):
             self._ensure_cache()
 
             if not self.multi:
-                return self._cache["default"]
+                return self._cache[DEFAULT_KEY]
 
             if self._active_key:
                 if self._active_key not in self._cache:
@@ -153,7 +158,7 @@ class SettingsManager(Generic[T]):
             if self.multi:
                 return dict(self._user_config)  # Return a copy to prevent external modification
             else:
-                return dict(self._user_config.get("default", {}))
+                return dict(self._user_config.get(DEFAULT_KEY, {}))
 
     @user_config.setter
     def user_config(self, value: dict[str, Any]) -> None:
@@ -174,7 +179,7 @@ class SettingsManager(Generic[T]):
                     self._user_config = dict(value["map"])  # Create a copy
 
             else:
-                self._user_config["default"] = dict(value)  # Create a copy
+                self._user_config[DEFAULT_KEY] = dict(value)  # Create a copy
 
             self._cache_valid = False
 
@@ -303,8 +308,8 @@ class SettingsManager(Generic[T]):
 
         else:
             self._cache = {
-                "default": self.settings_cls(
-                    **update_dict(self._user_config.get("default", {}), self._cli_args)
+                DEFAULT_KEY: self.settings_cls(
+                    **update_dict(self._user_config.get(DEFAULT_KEY, {}), self._cli_args)
                 )
             }
 

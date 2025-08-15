@@ -4,7 +4,7 @@ Tests for SettingsManager (unified settings manager)
 import pytest
 from pydantic_settings import BaseSettings
 
-from pydantic_settings_manager import SettingsManager
+from pydantic_settings_manager import DEFAULT_KEY, SettingsManager
 
 
 class ExampleSettings(BaseSettings):
@@ -83,9 +83,9 @@ def test_all_settings_single_mode() -> None:
 
     all_settings = manager.all_settings
     assert len(all_settings) == 1
-    assert "default" in all_settings
-    assert all_settings["default"].name == "test"
-    assert all_settings["default"].value == 42
+    assert DEFAULT_KEY in all_settings
+    assert all_settings[DEFAULT_KEY].name == "test"
+    assert all_settings[DEFAULT_KEY].value == 42
 
 
 def test_active_key_error_single_mode() -> None:
@@ -104,8 +104,8 @@ def test_get_settings_by_key_single_mode() -> None:
     manager = SettingsManager(ExampleSettings)
     manager.user_config = {"name": "test", "value": 42}
 
-    # Should work with "default" key
-    settings = manager.get_settings_by_key("default")
+    # Should work with DEFAULT_KEY
+    settings = manager.get_settings_by_key(DEFAULT_KEY)
     assert settings.name == "test"
     assert settings.value == 42
 

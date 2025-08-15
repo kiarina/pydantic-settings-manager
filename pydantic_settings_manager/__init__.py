@@ -18,13 +18,15 @@ Both managers support:
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .base import BaseSettingsManager
-from .manager import SettingsManager
+from .manager import DEFAULT_KEY, SettingsManager
 from .mapped import MappedSettingsManager, SettingsMap
 from .single import SingleSettingsManager
 
 __version__ = "0.2.2"
 
 __all__ = [
+    # Constants
+    "DEFAULT_KEY",
     # Re-exports from pydantic_settings
     "BaseSettings",
     # Base manager
