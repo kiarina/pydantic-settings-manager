@@ -18,6 +18,7 @@ Both managers support:
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .base import BaseSettingsManager
+from .manager import SettingsManager
 from .mapped import MappedSettingsManager, SettingsMap
 from .single import SingleSettingsManager
 
@@ -31,6 +32,8 @@ __all__ = [
     # Mapped settings manager
     "MappedSettingsManager",
     "SettingsConfigDict",
+    # Unified settings manager (thread-safe)
+    "SettingsManager",
     "SettingsMap",
     # Single settings manager
     "SingleSettingsManager",
