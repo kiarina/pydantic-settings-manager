@@ -343,11 +343,3 @@ def test_deadlock_prevention() -> None:
 
     # If we get here, no deadlock occurred
     assert True
-
-
-if __name__ == "__main__":
-    # Run a quick test
-    test_concurrent_settings_access()
-    test_concurrent_config_updates()
-    test_concurrent_multi_mode_operations()
-    print("All thread safety tests passed!")
