@@ -1,7 +1,7 @@
 """
 Tests for utility functions
 """
-from pydantic_settings_manager.utils import diff_dict, nested_dict, update_dict
+from pydantic_settings_manager.utils import diff_dict, update_dict
 
 
 def test_diff_dict() -> None:
@@ -58,8 +58,4 @@ def test_update_dict_nested() -> None:
     assert result == {"a": {"b": {"c": 1, "d": 2}}}
 
 
-def test_nested_dict() -> None:
-    """Test nested_dict function"""
-    d = nested_dict()
-    assert isinstance(d, dict)
-    assert len(d) == 0
+
