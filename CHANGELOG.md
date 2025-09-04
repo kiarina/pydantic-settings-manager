@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [2.0.0] - 2025-09-04
+
+### Removed
+- **BREAKING**: Removed deprecated classes as announced in v1.0.0:
+  - `BaseSettingsManager`: Use `SettingsManager` instead
+  - `SingleSettingsManager`: Use `SettingsManager(MySettings)` instead  
+  - `MappedSettingsManager`: Use `SettingsManager(MySettings, multi=True)` instead
+- Removed internal implementation files: `base.py`, `single.py`, `mapped.py`, `deprecated.py`, `types.py`
+- Removed `nested_dict` utility function (was only used by deprecated `SingleSettingsManager`)
+
+### Changed
+- Simplified package structure with only the unified `SettingsManager` class
+- Reduced package size by removing deprecated code paths
+- Cleaner API surface with only the recommended `SettingsManager` class
+
+### Migration
+- All functionality is available through the unified `SettingsManager` class
+- No breaking changes for users already using `SettingsManager`
+- See migration guide in README for upgrading from deprecated classes
+
 ## [1.0.3] - 2025-08-15
 
 ### Added

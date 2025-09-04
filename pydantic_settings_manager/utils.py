@@ -1,10 +1,7 @@
 """
 Utility functions for dictionary operations.
 """
-from collections import defaultdict
 from typing import Any
-
-from .types import NestedDict
 
 
 def diff_dict(base: dict[str, Any], target: dict[str, Any]) -> dict[str, Any]:
@@ -43,8 +40,4 @@ def update_dict(base: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def nested_dict() -> NestedDict:
-    """
-    ネストした dict を作成する
-    """
-    return defaultdict(nested_dict)
+
