@@ -243,6 +243,17 @@ def test_get_settings_by_key_multi_mode() -> None:
     with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
         manager.get_settings_by_key("nonexistent")
 
+    # Test with None key (should return current active settings)
+    manager.active_key = "dev"
+    none_settings = manager.get_settings_by_key(None)
+    assert none_settings.name == "development"
+    assert none_settings.value == 42
+
+    # Test with empty string key (should return current active settings)
+    empty_settings = manager.get_settings_by_key("")
+    assert empty_settings.name == "development"
+    assert empty_settings.value == 42
+
 
 def test_all_settings_multi_mode() -> None:
     """Test all_settings property in multi mode"""

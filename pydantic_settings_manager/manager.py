@@ -261,14 +261,14 @@ class SettingsManager(Generic[T]):
 
             self._cache_valid = False
 
-    def get_settings_by_key(self, key: str) -> T:
+    def get_settings_by_key(self, key: str | None) -> T:
         """
         Get settings by specific key.
 
         This method is only available in multi mode (multi=True).
 
         Args:
-            key: The key to get settings for. If empty, returns the current active settings.
+            key: The key to get settings for. If None or empty, returns the current active settings.
 
         Returns:
             The settings object for the specified key
@@ -280,7 +280,7 @@ class SettingsManager(Generic[T]):
             raise ValueError("Getting settings by key is only available in multi mode")
 
         if not key:
-            # If no key is provided, return the default settings
+            # If no key is provided (None or empty), return the default settings
             return self.settings
 
         with self._lock:

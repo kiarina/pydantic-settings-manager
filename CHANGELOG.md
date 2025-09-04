@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [2.1.0] - 2025-01-09
+
+### Changed
+- **API Enhancement**: `SettingsManager.get_settings_by_key()` now accepts `str | None` instead of just `str`
+- When `None` is passed to `get_settings_by_key()`, it returns the current active settings (same behavior as empty string)
+- Improved API consistency and flexibility for multi-mode configuration access
+
+### Added
+- Enhanced type annotations for better IDE support and type safety
+- Additional test coverage for `None` parameter handling
+
 ## [2.0.0] - 2025-09-04
 
 ### Removed
