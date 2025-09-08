@@ -73,7 +73,7 @@ For applications that need different settings for different environments or cont
 # Enable multi-configuration mode
 manager = SettingsManager(AppSettings, multi=True)
 
-# Configure multiple environments
+# Configure multiple environments (direct format)
 manager.user_config = {
     "development": {
         "app_name": "MyApp-Dev",
@@ -91,6 +91,16 @@ manager.user_config = {
         "max_connections": 5
     }
 }
+
+# Alternative: structured format (useful when you want to set active_key in config)
+# manager.user_config = {
+#     "key": "production",  # Set active configuration
+#     "map": {
+#         "development": {"app_name": "MyApp-Dev", "debug": True, "max_connections": 10},
+#         "production": {"app_name": "MyApp-Prod", "debug": False, "max_connections": 1000},
+#         "testing": {"app_name": "MyApp-Test", "debug": True, "max_connections": 5}
+#     }
+# }
 
 # Switch between configurations
 manager.active_key = "development"

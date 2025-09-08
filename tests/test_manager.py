@@ -131,10 +131,8 @@ def test_user_config_multi_mode_bulk() -> None:
     """Test bulk user configuration in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42, "debug": True},
-            "prod": {"name": "production", "value": 100, "debug": False}
-        }
+        "dev": {"name": "development", "value": 42, "debug": True},
+        "prod": {"name": "production", "value": 100, "debug": False}
     }
 
     # Should use first configuration by default
@@ -144,8 +142,8 @@ def test_user_config_multi_mode_bulk() -> None:
     assert settings.debug is True
 
 
-def test_user_config_multi_mode_with_active_key() -> None:
-    """Test user configuration with active_key in multi mode"""
+def test_user_config_multi_mode_structured_format() -> None:
+    """Test structured format user configuration in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "key": "prod",
@@ -158,6 +156,20 @@ def test_user_config_multi_mode_with_active_key() -> None:
     settings = manager.settings
     assert settings.name == "production"
     assert settings.value == 100
+
+
+def test_user_config_multi_mode_direct_format() -> None:
+    """Test direct format user configuration in multi mode"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
+    }
+
+    # Should use first configuration by default
+    settings = manager.settings
+    assert settings.name == "development"
+    assert settings.value == 42
 
 
 def test_active_key_property() -> None:
@@ -176,10 +188,8 @@ def test_cli_args_multi_mode() -> None:
     """Test CLI arguments in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
-        }
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
     }
     manager.active_key = "dev"
     manager.cli_args = {"value": 999, "debug": True}
@@ -194,9 +204,7 @@ def test_set_cli_args_method() -> None:
     """Test set_cli_args method"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42}
-        }
+        "dev": {"name": "development", "value": 42}
     }
 
     manager.set_cli_args("value", 999)
@@ -210,9 +218,7 @@ def test_set_cli_args_nested() -> None:
     """Test set_cli_args with nested keys"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42}
-        }
+        "dev": {"name": "development", "value": 42}
     }
 
     # Test nested key setting
@@ -225,10 +231,8 @@ def test_get_settings_by_key_multi_mode() -> None:
     """Test get_settings_by_key in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
-        }
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
     }
 
     dev_settings = manager.get_settings_by_key("dev")
@@ -259,10 +263,8 @@ def test_all_settings_multi_mode() -> None:
     """Test all_settings property in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
-        }
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
     }
 
     all_settings = manager.all_settings
@@ -277,9 +279,7 @@ def test_invalid_active_key() -> None:
     """Test invalid active key"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42}
-        }
+        "dev": {"name": "development", "value": 42}
     }
     manager.active_key = "nonexistent"
 
@@ -291,9 +291,7 @@ def test_clear_multi_mode() -> None:
     """Test clear cache in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "initial", "value": 42}
-        }
+        "dev": {"name": "initial", "value": 42}
     }
     manager.active_key = "dev"
 
@@ -304,9 +302,7 @@ def test_clear_multi_mode() -> None:
     # Clear and modify config
     manager.clear()
     manager.user_config = {
-        "map": {
-            "dev": {"name": "updated", "value": 100}
-        }
+        "dev": {"name": "updated", "value": 100}
     }
 
     # Check that new settings are used
@@ -350,10 +346,8 @@ def test_user_config_getter_multi_mode() -> None:
     """Test user_config getter in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
-        }
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
     }
 
     config = manager.user_config
@@ -422,9 +416,7 @@ def test_thread_safety_properties() -> None:
     """Test that properties return copies for thread safety"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42}
-        }
+        "dev": {"name": "development", "value": 42}
     }
     manager.cli_args = {"debug": True}
 
@@ -466,10 +458,8 @@ def test_multi_mode_compatibility() -> None:
 
     # Should work like MappedSettingsManager
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
-        }
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
     }
 
     # Test switching between configurations
@@ -486,9 +476,7 @@ def test_set_cli_args_compatibility() -> None:
     """Test set_cli_args method for compatibility"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "map": {
-            "dev": {"name": "development", "value": 42}
-        }
+        "dev": {"name": "development", "value": 42}
     }
 
     # This method should work for setting individual CLI args

@@ -175,19 +175,27 @@ class SettingsManager(Generic[T]):
 
         Args:
             value: The configuration to set. Can be:
-                - Single mode: {"name": "app", "value": 42}
-                - Multi mode: {"key": "dev", "map": {"dev": {"name": ".."}}}
+                Single mode:
+                    `{"name": "app", "value": 42}`
+                Multi mode (Structured format):
+                    `{"key": "dev", "map": {"dev": {"name": ".."}, "stg": {"name": ".."}}}`
+                Multi mode (Direct format):
+                    `{"dev": {"name": ".."}, "stg": {"name": ".."}}`
         """
         with self._lock:
             if self.multi:
-                if "key" in value:
-                    self._active_key = value["key"]
-
-                if "map" in value:
-                    self._user_config = dict(value["map"])  # Create a copy
+                if set(value.keys()).issubset({"key", "map"}):
+                    # Structured format
+                    if "key" in value:
+                        self._active_key = value["key"]
+                    if "map" in value:
+                        self._user_config = dict(value["map"])
+                else:
+                    # Direct format
+                    self._user_config = dict(value)
 
             else:
-                self._user_config[DEFAULT_KEY] = dict(value)  # Create a copy
+                self._user_config[DEFAULT_KEY] = dict(value)
 
             self._cache_valid = False
 

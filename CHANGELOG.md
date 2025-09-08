@@ -4,7 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
-## [2.1.0] - 2025-01-09
+## [2.2.0] - 2025-09-08
+
+### Added
+- **Direct Configuration Format**: Multi-mode now supports direct configuration format `{"dev": {...}, "prod": {...}}` in addition to the existing structured format `{"key": "dev", "map": {...}}`
+- Enhanced flexibility for multi-configuration setup with more intuitive API
+
+### Changed
+- `SettingsManager.user_config` setter in multi-mode now automatically detects configuration format
+- Improved configuration format detection logic for better reliability
+- Updated documentation and examples to showcase both configuration formats
+
+### Fixed
+- Simplified condition logic in configuration format detection
+- Enhanced test coverage for both direct and structured configuration formats
+
+## [2.1.0] - 2025-9-04
 
 ### Changed
 - **API Enhancement**: `SettingsManager.get_settings_by_key()` now accepts `str | None` instead of just `str`
@@ -20,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Removed
 - **BREAKING**: Removed deprecated classes as announced in v1.0.0:
   - `BaseSettingsManager`: Use `SettingsManager` instead
-  - `SingleSettingsManager`: Use `SettingsManager(MySettings)` instead  
+  - `SingleSettingsManager`: Use `SettingsManager(MySettings)` instead
   - `MappedSettingsManager`: Use `SettingsManager(MySettings, multi=True)` instead
 - Removed internal implementation files: `base.py`, `single.py`, `mapped.py`, `deprecated.py`, `types.py`
 - Removed `nested_dict` utility function (was only used by deprecated `SingleSettingsManager`)
