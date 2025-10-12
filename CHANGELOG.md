@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2.3.0] - 2025-10-13
+
 ### Added
 - **Bootstrap Pattern**: New `load_user_configs()` helper function for centralized configuration loading across multiple modules
 - **Deep Merge Utility**: Exported `update_dict()` function for deep merging of nested configuration dictionaries
