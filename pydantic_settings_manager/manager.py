@@ -297,12 +297,12 @@ class SettingsManager(Generic[T]):
             ```
         """
         if not self.multi:
-            if key is not None:
+            if key:
                 raise ValueError("Getting settings by key is only available in multi mode")
 
             return self.settings
 
-        if key is None:
+        if not key:
             return self.settings
 
         with self._lock:
