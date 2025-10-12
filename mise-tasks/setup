@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#MISE description="Setup development environment"
+
+set -euo pipefail
+
+echo "🚀 Setting up development environment..."
+
+echo ""
+echo "📦 Step 1/2: Installing mise tools..."
+mise install
+
+echo ""
+echo "🔄 Step 2/2: Syncing dependencies..."
+uv sync --all-extras --all-groups
+
+echo ""
+echo "✅ Development environment setup complete!"
+echo ""
+echo "💡 Next steps:"
+echo "   - Run 'mise run ci' to verify everything works"
+echo "   - Run 'mise run' for quick development checks"

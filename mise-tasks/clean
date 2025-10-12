@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+#MISE description="Clean build artifacts and cache files"
+
+set -euo pipefail
+
+echo "🧹 Cleaning artifacts..."
+
+# Remove build directories
+for dir in dist/ build/ *.egg-info/; do
+    if [ -d "$dir" ]; then
+        echo "  📦 Removing $dir"
+        rm -rf "$dir"
+    fi
+done
+
+# Clean Python cache files
+echo "🐍 Removing Python cache files..."
+find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+find . -type f -name "*.pyc" -delete 2>/dev/null || true
+find . -type f -name "*.pyo" -delete 2>/dev/null || true
+find . -type f -name "*.pyd" -delete 2>/dev/null || true
+
+# Clean coverage files
+if [ -f ".coverage" ]; then
+    echo "📊 Removing .coverage"
+    rm -f .coverage
+fi
+
+# Clean ruff cache
+if [ -d ".ruff_cache" ]; then
+    echo "🔧 Removing .ruff_cache/"
+    rm -rf .ruff_cache
+fi
+
+# Clean mypy cache
+if [ -d ".mypy_cache" ]; then
+    echo "🔍 Removing .mypy_cache/"
+    rm -rf .mypy_cache
+fi
+
+# Clean pytest cache
+if [ -d ".pytest_cache" ]; then
+    echo "🧪 Removing .pytest_cache/"
+    rm -rf .pytest_cache
+fi
+
+echo "✅ Clean completed!"

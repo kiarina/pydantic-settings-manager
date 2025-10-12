@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+#MISE description="Lint code (ruff check + format check)"
+
+set -euo pipefail
+
+echo "⚙️ Running linting..."
+
+status=0
+
+# Run ruff check
+echo "🔧 Running ruff check..."
+uv run --group dev ruff check pydantic_settings_manager/ tests/ || status=1
+
+# Run ruff format check
+echo "🔧 Running ruff format check..."
+uv run --group dev ruff format --check pydantic_settings_manager/ tests/ || status=1
+
+if [ $status -ne 0 ]; then
+    echo "❌ Linting failed"
+    exit $status
+fi
+
+echo "✅ Linting passed!"

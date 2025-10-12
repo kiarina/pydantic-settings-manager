@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+#MISE description="Build package"
+
+set -euo pipefail
+
+echo "🏗️  Building package..."
+
+uv build
+
+echo "✅ Package built successfully!"
+echo "📁 Built package is in dist/ directory"

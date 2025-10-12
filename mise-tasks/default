@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#MISE description="Run format, lint-fix, typecheck, and test"
+
+set -euo pipefail
+
+mise run lint-fix
+mise run format
+mise run typecheck
+mise run test

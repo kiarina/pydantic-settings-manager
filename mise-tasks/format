@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Format"
+
+set -euo pipefail
+
+uv run --group dev ruff format pydantic_settings_manager/ tests/

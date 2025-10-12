@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+#MISE description="Lint auto-fix (ruff check --fix)"
+
+set -euo pipefail
+
+echo "⚙️ Auto-fixing lint issues..."
+
+uv run --group dev ruff check --fix pydantic_settings_manager/ tests/
+
+echo "✅ Lint auto-fix completed!"

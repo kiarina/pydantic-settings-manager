@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#MISE description="Run CI checks (format, lint, typecheck, test, build)"
+
+set -euo pipefail
+
+echo "🚀 Running CI checks..."
+
+echo ""
+echo "📝 Step 1/5: Format check..."
+mise run format
+
+echo ""
+echo "🔍 Step 2/5: Lint check..."
+mise run lint
+
+echo ""
+echo "🔍 Step 3/5: Type check..."
+mise run typecheck
+
+echo ""
+echo "🧪 Step 4/5: Test..."
+mise run test --coverage
+
+echo ""
+echo "🏗️  Step 5/5: Build check..."
+mise run build
+
+echo ""
+echo "✅ All CI checks passed!"

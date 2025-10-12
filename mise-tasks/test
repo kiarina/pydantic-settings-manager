@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+#MISE description="Run tests"
+#USAGE flag "-v --verbose" help="Verbose output"
+#USAGE flag "-c --coverage" help="Run with coverage"
+
+set -euo pipefail
+
+# Default values for optional flags
+verbose="${usage_verbose:-false}"
+coverage="${usage_coverage:-false}"
+
+echo "🧪 Running tests..."
+
+# Test command construction
+test_cmd="uv run --group test pytest tests/"
+
+if [ "$verbose" = "true" ]; then
+    test_cmd="$test_cmd -v"
+fi
+
+if [ "$coverage" = "true" ]; then
+    echo "🔍 Running with coverage..."
+    test_cmd="$test_cmd --cov=pydantic_settings_manager --cov-report=term --cov-report=xml"
+fi
+
+# Test execution
+eval "$test_cmd"
+
+echo "✅ Tests passed!"

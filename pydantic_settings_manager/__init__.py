@@ -18,6 +18,7 @@ Features:
 - Thread-safe operations
 - Type-safe configuration management
 """
+from importlib.metadata import version
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -25,7 +26,7 @@ from .helpers import load_user_configs
 from .manager import DEFAULT_KEY, SettingsManager
 from .utils import update_dict
 
-__version__ = "2.2.0"
+__version__ = version("pydantic-settings-manager")
 
 __all__ = [
     # Constants
