@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Python dependencies (uv.lock)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      # Group dev dependencies together
+      dev-dependencies:
+        patterns:
+          - "ruff"
+          - "mypy"
+      # Group test dependencies together
+      test-dependencies:
+        patterns:
+          - "pytest*"
+      # Group pydantic dependencies together
+      pydantic-dependencies:
+        patterns:
+          - "pydantic*"
+    labels:
+      - "dependencies"
+      - "python"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "github-actions"

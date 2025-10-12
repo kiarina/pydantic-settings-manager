@@ -1,0 +1,80 @@
+name: Release
+
+on:
+    push:
+        tags:
+            - "v*.*.*"
+
+permissions:
+    contents: write
+    id-token: write # For trusted publishing to PyPI
+
+jobs:
+    build-and-publish:
+        name: Build and publish to PyPI
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Install mise
+              uses: jdx/mise-action@v3
+              with:
+                  version: 2025.9.6
+                  cache: true
+                  install: false
+
+            - name: Setup Python via mise
+              run: |
+                  mise use python@3.13
+                  mise install
+
+            - name: Install dependencies
+              run: |
+                  mise exec -- uv sync --all-extras --all-groups
+
+            - name: Run CI checks
+              run: mise run ci
+
+            - name: Build package
+              run: mise run build
+
+            - name: Extract release notes from CHANGELOG
+              id: changelog
+              run: |
+                  # Extract version from tag (remove 'v' prefix)
+                  VERSION=${GITHUB_REF_NAME#v}
+                  echo "Version: $VERSION"
+
+                  # Use mise task to extract changelog
+                  if mise run extract-changelog "$VERSION" --output /tmp/release_notes.md; then
+                    echo "use_auto_notes=false" >> $GITHUB_OUTPUT
+                    echo "Release notes preview:"
+                    echo "---"
+                    cat /tmp/release_notes.md
+                    echo "---"
+                  else
+                    echo "No changelog entry found for version $VERSION, using auto-generated notes"
+                    echo "use_auto_notes=true" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: dist/*
+                  body_path: ${{ steps.changelog.outputs.use_auto_notes == 'false' && '/tmp/release_notes.md' || '' }}
+                  generate_release_notes: ${{ steps.changelog.outputs.use_auto_notes == 'true' }}
+                  draft: false
+                  prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Publish to PyPI
+              uses: pypa/gh-action-pypi-publish@release/v1
+              continue-on-error: true
+              with:
+                  user: __token__
+                  password: ${{ secrets.PYPI_API_TOKEN }}
+                  packages-dir: dist/
+                  skip-existing: true
+                  verbose: true
