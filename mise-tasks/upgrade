@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#MISE description="Upgrade dependencies"
+#USAGE flag "-s --sync" help="Sync dependencies after upgrade"
+
+set -euo pipefail
+
+sync="${usage_sync:-false}"
+
+echo "⬆️  Upgrading dependencies..."
+
+# Upgrade all dependencies
+uv lock --upgrade
+
+echo "✅ Dependencies upgraded successfully!"
+echo ""
+
+if [ "$sync" = "true" ]; then
+    echo "🔄 Syncing dependencies..."
+    uv sync --all-extras --all-groups
+    echo "✅ Dependencies synced!"
+    echo ""
+fi
+
+echo "📊 Summary:"
+echo "  ✓ uv.lock updated with latest versions"
+if [ "$sync" = "true" ]; then
+    echo "  ✓ Virtual environment synced"
+fi
+echo ""
+echo "💡 Next steps:"
+if [ "$sync" = "false" ]; then
+    echo "   - Sync dependencies: mise run upgrade --sync"
+    echo "   - Or manually: uv sync --all-extras --all-groups"
+fi
+echo "   - Test changes: mise run ci"
+echo "   - Commit: git add uv.lock && git commit -m 'chore: upgrade dependencies'"

@@ -14,26 +14,54 @@ A modern, thread-safe library for managing Pydantic settings with support for mu
 
 ## Table of Contents
 
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-  - [Single Module (Simple Projects)](#single-module-simple-projects)
-  - [Runtime Overrides](#runtime-overrides)
-- [**Bootstrap Pattern (Recommended for Production)**](#bootstrap-pattern-recommended-for-production) ⭐
-  - [Why Bootstrap Pattern?](#why-bootstrap-pattern)
-  - [Project Structure](#project-structure)
-  - [Quick Example](#quick-example)
-  - [Configuration File Structure](#configuration-file-structure)
-  - [Custom Manager Names](#custom-manager-names)
-  - [Frequently Asked Questions](#frequently-asked-questions)
-- [Multiple Configurations](#multiple-configurations)
-- [Advanced Usage](#advanced-usage)
-  - [Thread Safety](#thread-safety)
-  - [Dynamic Configuration Updates](#dynamic-configuration-updates)
-- [CLI Integration](#cli-integration)
-- [Related Tools](#related-tools)
-- [Development](#development)
-- [API Reference](#api-reference)
-- [License](#license)
+- [pydantic-settings-manager](#pydantic-settings-manager)
+  - [Features](#features)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Quick Start](#quick-start)
+    - [Single Module (Simple Projects)](#single-module-simple-projects)
+    - [Runtime Overrides](#runtime-overrides)
+  - [Bootstrap Pattern (Recommended for Production)](#bootstrap-pattern-recommended-for-production)
+    - [Why Bootstrap Pattern?](#why-bootstrap-pattern)
+    - [Project Structure](#project-structure)
+    - [Quick Example](#quick-example)
+    - [Configuration File Structure](#configuration-file-structure)
+    - [Custom Manager Names](#custom-manager-names)
+    - [Frequently Asked Questions](#frequently-asked-questions)
+  - [Multiple Configurations](#multiple-configurations)
+  - [Advanced Usage](#advanced-usage)
+    - [Thread Safety](#thread-safety)
+    - [Dynamic Configuration Updates](#dynamic-configuration-updates)
+  - [CLI Integration](#cli-integration)
+  - [Related Tools](#related-tools)
+    - [pydantic-config-builder](#pydantic-config-builder)
+  - [Development](#development)
+    - [Prerequisites](#prerequisites)
+    - [Quick Start](#quick-start-1)
+    - [Available Tasks](#available-tasks)
+    - [Common Workflows](#common-workflows)
+      - [Daily Development](#daily-development)
+      - [Before Committing](#before-committing)
+      - [Testing](#testing)
+      - [Code Quality](#code-quality)
+      - [Dependency Management](#dependency-management)
+      - [Release Process](#release-process)
+    - [Project Structure](#project-structure-1)
+    - [Technology Stack](#technology-stack)
+    - [Why mise?](#why-mise)
+    - [Troubleshooting](#troubleshooting)
+      - [mise not found](#mise-not-found)
+      - [Python version issues](#python-version-issues)
+      - [Dependency issues](#dependency-issues)
+      - [CI failures](#ci-failures)
+  - [API Reference](#api-reference)
+    - [SettingsManager](#settingsmanager)
+      - [Parameters](#parameters)
+      - [Properties](#properties)
+      - [Methods](#methods)
+  - [License](#license)
+  - [Contributing](#contributing)
+  - [Documentation](#documentation)
 
 ## Installation
 
@@ -179,16 +207,16 @@ from pydantic_settings_manager import load_user_configs, update_dict
 def bootstrap(environment: str | None = None) -> None:
     """
     Bootstrap all settings managers with environment-specific configuration.
-    
+
     Args:
         environment: Environment name (e.g., "development", "production").
                     If None, uses ENVIRONMENT env var or defaults to "development".
     """
     if environment is None:
         environment = os.getenv("ENVIRONMENT", "development")
-    
+
     config_dir = Path("config")
-    
+
     # Load base configuration (optional)
     base_file = config_dir / "base.yaml"
     if base_file.exists():
@@ -196,7 +224,7 @@ def bootstrap(environment: str | None = None) -> None:
             config = yaml.safe_load(f) or {}
     else:
         config = {}
-    
+
     # Load environment-specific configuration
     env_file = config_dir / f"{environment}.yaml"
     if env_file.exists():
@@ -204,10 +232,10 @@ def bootstrap(environment: str | None = None) -> None:
             env_config = yaml.safe_load(f) or {}
             # Deep merge configurations (environment overrides base)
             config = update_dict(config, env_config)
-    
+
     # This single line configures ALL your settings managers!
     load_user_configs(config)
-    
+
     print(f"✓ Loaded configuration for '{environment}' environment")
 
 # main.py
@@ -219,12 +247,12 @@ from modules.billing.settings import settings_manager as billing_settings_manage
 def main():
     # Bootstrap all settings with one line
     bootstrap("production")
-    
+
     # All settings are now configured and ready to use!
     app = app_settings_manager.settings
     auth = auth_settings_manager.settings
     billing = billing_settings_manager.settings
-    
+
     print(f"App: {app.name}, Debug: {app.debug}")
     print(f"JWT Expiry: {auth.token_expiry}")
     print(f"Currency: {billing.currency}")
@@ -299,7 +327,7 @@ Pydantic will automatically use `os.getenv("SECRET_KEY")` if the environment var
 
 A: Only when you need module-specific logic:
 - Custom validation per module
-- Conditional configuration based on module state  
+- Conditional configuration based on module state
 - Dynamic module discovery
 
 For 99% of cases, use `load_user_configs()`.
@@ -329,7 +357,7 @@ manager.user_config = {
         "max_connections": 10
     },
     "production": {
-        "app_name": "MyApp-Prod", 
+        "app_name": "MyApp-Prod",
         "debug": False,
         "max_connections": 1000
     },
@@ -420,28 +448,28 @@ from bootstrap import bootstrap_settings
 from settings.app import app_settings_manager
 
 @click.command()
-@click.option("--environment", "-e", default="development", 
+@click.option("--environment", "-e", default="development",
               help="Environment to run in")
-@click.option("--debug/--no-debug", default=None, 
+@click.option("--debug/--no-debug", default=None,
               help="Override debug setting")
-@click.option("--max-connections", type=int, 
+@click.option("--max-connections", type=int,
               help="Override max connections")
 def main(environment: str, debug: bool, max_connections: int):
     """Run the application with specified settings"""
-    
+
     # Bootstrap with environment
     bootstrap_settings(environment)
-    
+
     # Apply CLI overrides
     cli_overrides = {}
     if debug is not None:
         cli_overrides["debug"] = debug
     if max_connections is not None:
         cli_overrides["max_connections"] = max_connections
-    
+
     if cli_overrides:
         app_settings_manager.cli_args = cli_overrides
-    
+
     # Run application
     settings = app_settings_manager.settings
     print(f"Running {settings.name} in {environment} mode")
@@ -511,51 +539,232 @@ settings_manager.user_config = config
 
 ## Development
 
-This project uses modern Python development tools:
+This project uses [mise](https://mise.jdx.dev/) for development environment management and task automation.
 
-- **uv**: Fast Python package manager with PEP 735 dependency groups support
-- **ruff**: Fast linter and formatter (replaces black, isort, and flake8)
-- **mypy**: Static type checking
-- **pytest**: Testing framework with coverage reporting
+### Prerequisites
 
-### Setup
+Install mise:
 
 ```bash
-# Install all development dependencies
-uv sync --group dev
+# macOS
+brew install mise
 
-# Or install specific dependency groups
-uv sync --group test    # Testing tools only
-uv sync --group lint    # Linting tools only
+# Linux
+curl https://mise.run | sh
 
-# Format code
-uv run ruff check --fix .
-
-# Run linting
-uv run ruff check .
-uv run mypy .
-
-# Run tests
-uv run pytest --cov=pydantic_settings_manager tests/
-
-# Build and test everything
-make build
+# Windows (WSL)
+curl https://mise.run | sh
 ```
 
-### Development Workflow
+### Quick Start
 
 ```bash
-# Quick setup for testing
-uv sync --group test
-make test
+# 1. Clone the repository
+git clone https://github.com/kiarina/pydantic-settings-manager.git
+cd pydantic-settings-manager
 
-# Quick setup for linting
-uv sync --group lint
-make lint
+# 2. Setup development environment (one command!)
+mise run setup
 
-# Full development environment
-uv sync --group dev
-make build
+# 3. Verify everything works
+mise run ci
+```
+
+That's it! You're ready to develop.
+
+### Available Tasks
+
+Run `mise tasks` to see all available tasks:
+
+```bash
+$ mise tasks
+Name               Description
+build              Build package
+ci                 Run CI checks (format, lint, typecheck, test, build)
+clean              Clean build artifacts and cache files
+default            Run format, lint-fix, typecheck, and test
+extract-changelog  Extract changelog section for a specific version
+format             Format code
+lint               Lint code (ruff check + format check)
+lint-fix           Lint auto-fix (ruff check --fix)
+publish            Publish package to PyPI
+setup              Setup development environment
+test               Run tests
+typecheck          Type check with mypy
+update-changelog   Update CHANGELOG.md with version entry
+upgrade            Upgrade dependencies
+version            Update version in pyproject.toml
+```
+
+### Common Workflows
+
+#### Daily Development
+
+```bash
+# Make your changes, then run quick checks
+mise run
+
+# This runs: format, lint-fix, typecheck, test
+# Auto-fixes issues when possible
+```
+
+#### Before Committing
+
+```bash
+# Run full CI checks (same as GitHub Actions)
+mise run ci
+
+# This runs: format, lint, typecheck, test, build
+# Ensures your changes will pass CI
+```
+
+#### Testing
+
+```bash
+# Run tests
+mise run test
+
+# Run tests with verbose output
+mise run test -v
+
+# Run tests with coverage report
+mise run test -c
+```
+
+#### Code Quality
+
+```bash
+# Auto-fix formatting and linting issues
+mise run lint-fix
+mise run format
+
+# Check code quality (no auto-fix)
+mise run lint
+mise run typecheck
+```
+
+#### Dependency Management
+
+```bash
+# Upgrade all dependencies to latest versions
+mise run upgrade
+
+# Upgrade and sync immediately
+mise run upgrade --sync
+
+# After upgrading, verify everything still works
+mise run ci
+```
+
+#### Release Process
+
+```bash
+# 1. Update version
+mise run version 2.3.0
+
+# 2. Update CHANGELOG
+mise run update-changelog 2.3.0
+
+# 3. Verify changes
+git diff pyproject.toml CHANGELOG.md
+
+# 4. Run CI to ensure everything works
+mise run ci
+
+# 5. Commit and tag
+git add pyproject.toml CHANGELOG.md
+git commit -m "chore: release v2.3.0"
+git tag v2.3.0
+
+# 6. Push (GitHub Actions will automatically publish)
+git push origin main --tags
+```
+
+### Project Structure
+
+```
+pydantic-settings-manager/
+├── mise.toml                      # mise configuration
+├── mise-tasks/                    # Task definitions
+│   ├── setup                      # Setup environment
+│   ├── ci                         # Run CI checks
+│   ├── test                       # Run tests
+│   ├── format                     # Format code
+│   ├── lint                       # Lint code
+│   ├── lint-fix                   # Auto-fix lint issues
+│   ├── typecheck                  # Type check
+│   ├── build                      # Build package
+│   ├── publish                    # Publish to PyPI
+│   ├── upgrade                    # Upgrade dependencies
+│   ├── version                    # Update version
+│   ├── update-changelog           # Update CHANGELOG
+│   ├── extract-changelog          # Extract changelog section
+│   └── clean                      # Clean artifacts
+├── pydantic_settings_manager/     # Source code
+├── tests/                         # Test files
+├── pyproject.toml                 # Project metadata
+└── uv.lock                        # Locked dependencies
+```
+
+### Technology Stack
+
+- **[mise](https://mise.jdx.dev/)**: Development environment and task runner
+- **[uv](https://github.com/astral-sh/uv)**: Fast Python package manager
+- **[ruff](https://github.com/astral-sh/ruff)**: Fast linter and formatter
+- **[mypy](https://mypy-lang.org/)**: Static type checking
+- **[pytest](https://pytest.org/)**: Testing framework
+
+### Why mise?
+
+- **Single command setup**: `mise run setup` installs everything
+- **Consistent environment**: Same Python version and tools for all developers
+- **Task automation**: Predefined tasks for common operations
+- **Fast**: Parallel execution and caching
+- **Cross-platform**: Works on macOS, Linux, and Windows (WSL)
+
+### Troubleshooting
+
+#### mise not found
+
+```bash
+# Make sure mise is in your PATH
+echo 'eval "$(mise activate bash)"' >> ~/.bashrc  # bash
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc   # zsh
+
+# Reload shell
+source ~/.bashrc  # or ~/.zshrc
+```
+
+#### Python version issues
+
+```bash
+# mise automatically installs the correct Python version
+mise install
+
+# Verify Python version
+mise exec -- python --version
+```
+
+#### Dependency issues
+
+```bash
+# Clean and reinstall
+mise run clean
+rm -rf .venv
+mise run setup
+```
+
+#### CI failures
+
+```bash
+# Run the same checks locally
+mise run ci
+
+# Run individual checks
+mise run format
+mise run lint
+mise run typecheck
+mise run test
 ```
 
 ## API Reference
