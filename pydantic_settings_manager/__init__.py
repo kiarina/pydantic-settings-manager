@@ -18,6 +18,7 @@ Features:
 - Thread-safe operations
 - Type-safe configuration management
 """
+
 from importlib.metadata import version
 
 from pydantic_settings import BaseSettings, SettingsConfigDict

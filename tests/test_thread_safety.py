@@ -1,6 +1,7 @@
 """
 Tests for thread safety of SettingsManager
 """
+
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,6 +17,7 @@ DEADLOCK_TEST_TIMEOUT_SECONDS = 30  # Timeout for deadlock detection tests
 
 class ThreadTestSettings(BaseSettings):
     """Test settings class"""
+
     name: str = "default"
     value: int = 0
     counter: int = 0
@@ -72,7 +74,7 @@ def test_concurrent_config_updates() -> None:
                 config = {
                     "name": f"thread_{thread_id}",
                     "value": i,
-                    "counter": thread_id * 1000 + i
+                    "counter": thread_id * 1000 + i,
                 }
                 manager.user_config = config
 
@@ -146,7 +148,7 @@ def test_concurrent_multi_mode_operations() -> None:
         "map": {
             "dev": {"name": "development", "value": 1},
             "prod": {"name": "production", "value": 2},
-            "test": {"name": "testing", "value": 3}
+            "test": {"name": "testing", "value": 3},
         }
     }
 
@@ -228,7 +230,7 @@ def test_concurrent_property_access() -> None:
     manager.user_config = {
         "map": {
             "dev": {"name": "development", "value": 1},
-            "prod": {"name": "production", "value": 2}
+            "prod": {"name": "production", "value": 2},
         }
     }
     manager.active_key = "dev"
@@ -307,7 +309,7 @@ def test_deadlock_prevention() -> None:
     manager.user_config = {
         "map": {
             "config1": {"name": "config1", "value": 1},
-            "config2": {"name": "config2", "value": 2}
+            "config2": {"name": "config2", "value": 2},
         }
     }
 

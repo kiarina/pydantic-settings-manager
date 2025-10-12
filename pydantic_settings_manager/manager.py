@@ -370,9 +370,7 @@ class SettingsManager(Generic[T]):
 
             for key, user_config in self._user_config.items():
                 if isinstance(user_config, dict):
-                    self._cache[key] = self.settings_cls(
-                        **update_dict(user_config, self._cli_args)
-                    )
+                    self._cache[key] = self.settings_cls(**update_dict(user_config, self._cli_args))
 
         else:
             self._cache = {

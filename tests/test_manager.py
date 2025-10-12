@@ -1,6 +1,7 @@
 """
 Tests for SettingsManager (unified settings manager)
 """
+
 import pytest
 from pydantic_settings import BaseSettings
 
@@ -9,12 +10,14 @@ from pydantic_settings_manager import DEFAULT_KEY, SettingsManager
 
 class ExampleSettings(BaseSettings):
     """Example settings class for testing"""
+
     name: str = "default"
     value: int = 0
     debug: bool = False
 
 
 # Single Mode Tests
+
 
 def test_init_single_mode() -> None:
     """Test initialization in single mode"""
@@ -119,7 +122,7 @@ def test_get_settings_multi_mode_with_key() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     # Get settings by specific key
@@ -137,7 +140,7 @@ def test_get_settings_multi_mode_without_key() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     # Should return current active settings
@@ -155,9 +158,7 @@ def test_get_settings_multi_mode_without_key() -> None:
 def test_get_settings_multi_mode_invalid_key() -> None:
     """Test get_settings with invalid key in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "development", "value": 42}}
 
     # Should raise error for non-existent key
     with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
@@ -169,7 +170,7 @@ def test_get_settings_multi_mode_none_key() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     # None key should return current active settings
@@ -198,6 +199,7 @@ def test_get_settings_by_key_single_mode() -> None:
 
 # Multi Mode Tests
 
+
 def test_init_multi_mode() -> None:
     """Test initialization in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
@@ -215,7 +217,7 @@ def test_user_config_multi_mode_bulk() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42, "debug": True},
-        "prod": {"name": "production", "value": 100, "debug": False}
+        "prod": {"name": "production", "value": 100, "debug": False},
     }
 
     # Should use first configuration by default
@@ -232,8 +234,8 @@ def test_user_config_multi_mode_structured_format() -> None:
         "key": "prod",
         "map": {
             "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100}
-        }
+            "prod": {"name": "production", "value": 100},
+        },
     }
 
     settings = manager.settings
@@ -246,7 +248,7 @@ def test_user_config_multi_mode_direct_format() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     # Should use first configuration by default
@@ -272,7 +274,7 @@ def test_cli_args_multi_mode() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
     manager.active_key = "dev"
     manager.cli_args = {"value": 999, "debug": True}
@@ -286,9 +288,7 @@ def test_cli_args_multi_mode() -> None:
 def test_set_cli_args_method() -> None:
     """Test set_cli_args method"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "development", "value": 42}}
 
     manager.set_cli_args("value", 999)
     manager.active_key = "dev"
@@ -300,9 +300,7 @@ def test_set_cli_args_method() -> None:
 def test_set_cli_args_nested() -> None:
     """Test set_cli_args with nested keys"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "development", "value": 42}}
 
     # Test nested key setting
     manager.set_cli_args("nested.key", "test_value")
@@ -315,7 +313,7 @@ def test_get_settings_by_key_multi_mode() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     # Should show deprecation warning for all calls
@@ -347,7 +345,7 @@ def test_all_settings_multi_mode() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     all_settings = manager.all_settings
@@ -361,9 +359,7 @@ def test_all_settings_multi_mode() -> None:
 def test_invalid_active_key() -> None:
     """Test invalid active key"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "development", "value": 42}}
     manager.active_key = "nonexistent"
 
     with pytest.raises(ValueError, match="Active key 'nonexistent' does not exist"):
@@ -373,9 +369,7 @@ def test_invalid_active_key() -> None:
 def test_clear_multi_mode() -> None:
     """Test clear cache in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "initial", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "initial", "value": 42}}
     manager.active_key = "dev"
 
     # Get settings to cache them
@@ -384,9 +378,7 @@ def test_clear_multi_mode() -> None:
 
     # Clear and modify config
     manager.clear()
-    manager.user_config = {
-        "dev": {"name": "updated", "value": 100}
-    }
+    manager.user_config = {"dev": {"name": "updated", "value": 100}}
 
     # Check that new settings are used
     updated_settings = manager.settings
@@ -395,6 +387,7 @@ def test_clear_multi_mode() -> None:
 
 
 # Edge Cases Tests
+
 
 def test_empty_config_single_mode() -> None:
     """Test empty configuration in single mode"""
@@ -430,13 +423,13 @@ def test_user_config_getter_multi_mode() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     config = manager.user_config
     expected = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
     assert config == expected
 
@@ -498,9 +491,7 @@ def test_cache_invalidation_on_cli_args_change() -> None:
 def test_thread_safety_properties() -> None:
     """Test that properties return copies for thread safety"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "development", "value": 42}}
     manager.cli_args = {"debug": True}
 
     # Get properties multiple times
@@ -522,6 +513,7 @@ def test_thread_safety_properties() -> None:
 
 # Compatibility Tests
 
+
 def test_single_mode_compatibility() -> None:
     """Test that single mode works like SingleSettingsManager"""
     manager = SettingsManager(ExampleSettings)
@@ -542,7 +534,7 @@ def test_multi_mode_compatibility() -> None:
     # Should work like MappedSettingsManager
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100}
+        "prod": {"name": "production", "value": 100},
     }
 
     # Test switching between configurations
@@ -558,9 +550,7 @@ def test_multi_mode_compatibility() -> None:
 def test_set_cli_args_compatibility() -> None:
     """Test set_cli_args method for compatibility"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42}
-    }
+    manager.user_config = {"dev": {"name": "development", "value": 42}}
 
     # This method should work for setting individual CLI args
     manager.set_cli_args("debug", True)

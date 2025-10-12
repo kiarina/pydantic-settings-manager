@@ -1,6 +1,7 @@
 """
 Tests for utility functions
 """
+
 from pydantic_settings_manager.utils import diff_dict, update_dict
 
 
@@ -56,6 +57,3 @@ def test_update_dict_nested() -> None:
 
     result = update_dict(base, update)
     assert result == {"a": {"b": {"c": 1, "d": 2}}}
-
-
-

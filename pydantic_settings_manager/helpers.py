@@ -67,9 +67,7 @@ def load_user_configs(
 
         # Check if attribute exists
         if not hasattr(module, manager_name):
-            raise AttributeError(
-                f"Module {module_name} does not have a '{manager_name}' attribute"
-            )
+            raise AttributeError(f"Module {module_name} does not have a '{manager_name}' attribute")
 
         settings_manager = getattr(module, manager_name)
 

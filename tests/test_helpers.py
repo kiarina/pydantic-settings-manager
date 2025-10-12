@@ -1,6 +1,7 @@
 """
 Tests for helper functions
 """
+
 import sys
 from types import ModuleType
 from typing import Any
@@ -13,6 +14,7 @@ from pydantic_settings_manager import SettingsManager, load_user_configs
 
 class ExampleSettings(BaseSettings):
     """Example settings class for testing"""
+
     name: str = "default"
     value: int = 0
 
@@ -34,7 +36,7 @@ def test_load_user_configs_success() -> None:
         # Load configs
         configs = {
             "test_module1": {"name": "module1", "value": 1},
-            "test_module2": {"name": "module2", "value": 2}
+            "test_module2": {"name": "module2", "value": 2},
         }
 
         load_user_configs(configs)
@@ -59,9 +61,7 @@ def test_load_user_configs_custom_manager_name() -> None:
     sys.modules["test_custom_module"] = module
 
     try:
-        configs = {
-            "test_custom_module": {"name": "custom", "value": 42}
-        }
+        configs = {"test_custom_module": {"name": "custom", "value": 42}}
 
         load_user_configs(configs, manager_name="custom_manager")
 
@@ -74,9 +74,7 @@ def test_load_user_configs_custom_manager_name() -> None:
 
 def test_load_user_configs_module_not_found() -> None:
     """Test error when module is not found"""
-    configs = {
-        "nonexistent_module": {"name": "test"}
-    }
+    configs = {"nonexistent_module": {"name": "test"}}
 
     with pytest.raises(ModuleNotFoundError, match="Module not found: nonexistent_module"):
         load_user_configs(configs)
@@ -88,13 +86,11 @@ def test_load_user_configs_missing_manager_attribute() -> None:
     sys.modules["test_no_manager"] = module
 
     try:
-        configs = {
-            "test_no_manager": {"name": "test"}
-        }
+        configs = {"test_no_manager": {"name": "test"}}
 
         with pytest.raises(
             AttributeError,
-            match="Module test_no_manager does not have a 'settings_manager' attribute"
+            match="Module test_no_manager does not have a 'settings_manager' attribute",
         ):
             load_user_configs(configs)
 
@@ -110,15 +106,12 @@ def test_load_user_configs_wrong_manager_type() -> None:
     sys.modules["test_wrong_type"] = module
 
     try:
-        configs = {
-            "test_wrong_type": {"name": "test"}
-        }
+        configs = {"test_wrong_type": {"name": "test"}}
 
         with pytest.raises(
             TypeError,
             match=(
-                "'settings_manager' in module test_wrong_type is not an instance of "
-                "SettingsManager"
+                "'settings_manager' in module test_wrong_type is not an instance of SettingsManager"
             ),
         ):
             load_user_configs(configs)
@@ -135,13 +128,10 @@ def test_load_user_configs_invalid_config_type() -> None:
     sys.modules["test_invalid_config"] = module
 
     try:
-        configs: dict[str, Any] = {
-            "test_invalid_config": "not a dict"
-        }
+        configs: dict[str, Any] = {"test_invalid_config": "not a dict"}
 
         with pytest.raises(
-            TypeError,
-            match="Configuration for module test_invalid_config must be a dictionary"
+            TypeError, match="Configuration for module test_invalid_config must be a dictionary"
         ):
             load_user_configs(configs)
 
@@ -160,7 +150,7 @@ def test_load_user_configs_multi_mode() -> None:
         configs = {
             "test_multi_module": {
                 "dev": {"name": "development", "value": 1},
-                "prod": {"name": "production", "value": 2}
+                "prod": {"name": "production", "value": 2},
             }
         }
 
@@ -196,7 +186,7 @@ def test_load_user_configs_partial_failure() -> None:
     try:
         configs = {
             "test_partial1": {"name": "first", "value": 1},
-            "nonexistent_module": {"name": "second", "value": 2}
+            "nonexistent_module": {"name": "second", "value": 2},
         }
 
         # Should fail on second module
