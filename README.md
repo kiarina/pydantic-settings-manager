@@ -539,171 +539,53 @@ settings_manager.user_config = config
 
 ## Development
 
-This project uses [mise](https://mise.jdx.dev/) for development environment management and task automation.
-
-### Prerequisites
-
-Install mise:
-
-```bash
-# macOS
-brew install mise
-
-# Linux
-curl https://mise.run | sh
-
-# Windows (WSL)
-curl https://mise.run | sh
-```
+This project uses [mise](https://mise.jdx.dev/) for development environment management.
 
 ### Quick Start
 
 ```bash
-# 1. Clone the repository
+# Install mise (macOS)
+brew install mise
+
+# Clone and setup
 git clone https://github.com/kiarina/pydantic-settings-manager.git
 cd pydantic-settings-manager
-
-# 2. Setup development environment (one command!)
 mise run setup
 
-# 3. Verify everything works
+# Verify everything works
 mise run ci
 ```
 
-That's it! You're ready to develop.
-
-### Available Tasks
-
-Run `mise tasks` to see all available tasks:
+### Common Tasks
 
 ```bash
-$ mise tasks
-Name               Description
-build              Build package
-ci                 Run CI checks (format, lint, typecheck, test, build)
-clean              Clean build artifacts and cache files
-default            Run format, lint-fix, typecheck, and test
-extract-changelog  Extract changelog section for a specific version
-format             Format code
-lint               Lint code (ruff check + format check)
-lint-fix           Lint auto-fix (ruff check --fix)
-publish            Publish package to PyPI
-setup              Setup development environment
-test               Run tests
-typecheck          Type check with mypy
-update-changelog   Update CHANGELOG.md with version entry
-upgrade            Upgrade dependencies
-version            Update version in pyproject.toml
-```
-
-### Common Workflows
-
-#### Daily Development
-
-```bash
-# Make your changes, then run quick checks
+# Daily development (auto-fix + test)
 mise run
 
-# This runs: format, lint-fix, typecheck, test
-# Auto-fixes issues when possible
-```
-
-#### Before Committing
-
-```bash
-# Run full CI checks (same as GitHub Actions)
+# Before committing (full CI checks)
 mise run ci
 
-# This runs: format, lint, typecheck, test, build
-# Ensures your changes will pass CI
-```
-
-#### Testing
-
-```bash
 # Run tests
 mise run test
+mise run test -v          # verbose
+mise run test -c          # with coverage
 
-# Run tests with verbose output
-mise run test -v
+# Code quality
+mise run format           # format code
+mise run lint             # check issues
+mise run lint-fix         # auto-fix issues
+mise run typecheck        # type check
 
-# Run tests with coverage report
-mise run test -c
-```
+# Dependencies
+mise run upgrade          # upgrade dependencies
+mise run upgrade --sync   # upgrade and sync
 
-#### Code Quality
-
-```bash
-# Auto-fix formatting and linting issues
-mise run lint-fix
-mise run format
-
-# Check code quality (no auto-fix)
-mise run lint
-mise run typecheck
-```
-
-#### Dependency Management
-
-```bash
-# Upgrade all dependencies to latest versions
-mise run upgrade
-
-# Upgrade and sync immediately
-mise run upgrade --sync
-
-# After upgrading, verify everything still works
-mise run ci
-```
-
-#### Release Process
-
-```bash
-# 1. Update version
+# Release (see docs/runbooks/how_to_release.md for details)
 mise run version 2.3.0
-
-# 2. Update CHANGELOG
 mise run update-changelog 2.3.0
-
-# 3. Verify changes
-git diff pyproject.toml CHANGELOG.md
-
-# 4. Run CI to ensure everything works
 mise run ci
-
-# 5. Commit and tag
-git add pyproject.toml CHANGELOG.md
-git commit -m "chore: release v2.3.0"
-git tag v2.3.0
-
-# 6. Push (GitHub Actions will automatically publish)
-git push origin main --tags
-```
-
-### Project Structure
-
-```
-pydantic-settings-manager/
-├── mise.toml                      # mise configuration
-├── mise-tasks/                    # Task definitions
-│   ├── setup                      # Setup environment
-│   ├── ci                         # Run CI checks
-│   ├── test                       # Run tests
-│   ├── format                     # Format code
-│   ├── lint                       # Lint code
-│   ├── lint-fix                   # Auto-fix lint issues
-│   ├── typecheck                  # Type check
-│   ├── build                      # Build package
-│   ├── publish                    # Publish to PyPI
-│   ├── upgrade                    # Upgrade dependencies
-│   ├── version                    # Update version
-│   ├── update-changelog           # Update CHANGELOG
-│   ├── extract-changelog          # Extract changelog section
-│   └── clean                      # Clean artifacts
-├── pydantic_settings_manager/     # Source code
-├── tests/                         # Test files
-├── pyproject.toml                 # Project metadata
-└── uv.lock                        # Locked dependencies
+git add . && git commit -m "chore: release v2.3.0"
+git tag v2.3.0 && git push origin main --tags
 ```
 
 ### Technology Stack
@@ -714,58 +596,10 @@ pydantic-settings-manager/
 - **[mypy](https://mypy-lang.org/)**: Static type checking
 - **[pytest](https://pytest.org/)**: Testing framework
 
-### Why mise?
-
-- **Single command setup**: `mise run setup` installs everything
-- **Consistent environment**: Same Python version and tools for all developers
-- **Task automation**: Predefined tasks for common operations
-- **Fast**: Parallel execution and caching
-- **Cross-platform**: Works on macOS, Linux, and Windows (WSL)
-
-### Troubleshooting
-
-#### mise not found
-
-```bash
-# Make sure mise is in your PATH
-echo 'eval "$(mise activate bash)"' >> ~/.bashrc  # bash
-echo 'eval "$(mise activate zsh)"' >> ~/.zshrc   # zsh
-
-# Reload shell
-source ~/.bashrc  # or ~/.zshrc
-```
-
-#### Python version issues
-
-```bash
-# mise automatically installs the correct Python version
-mise install
-
-# Verify Python version
-mise exec -- python --version
-```
-
-#### Dependency issues
-
-```bash
-# Clean and reinstall
-mise run clean
-rm -rf .venv
-mise run setup
-```
-
-#### CI failures
-
-```bash
-# Run the same checks locally
-mise run ci
-
-# Run individual checks
-mise run format
-mise run lint
-mise run typecheck
-mise run test
-```
+For detailed documentation, see:
+- Available tasks: `mise tasks`
+- Release process: `docs/runbooks/how_to_release.md`
+- Project info: `docs/knowledges/about_this_project.md`
 
 ## API Reference
 
