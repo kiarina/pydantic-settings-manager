@@ -1,7 +1,6 @@
 ---
 chat_model_config: "@anthropic"
 tool_configs: ["@mini"]
-no_history: true
 ---
 
 Check the committed changes from the last release to the present,

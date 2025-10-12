@@ -1,7 +1,6 @@
 ---
 chat_model_config: "@anthropic"
 tool_configs: ["@mini"]
-no_history: true
 ---
 
 Feature implementation and testing have been completed and merged into the main branch.
