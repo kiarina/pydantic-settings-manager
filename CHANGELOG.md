@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2.3.1] - 2025-10-13
+
 ### Fixed
 - `get_settings()` now treats empty string `""` as `None`, returning current active settings instead of raising an error
 
