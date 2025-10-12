@@ -1,6 +1,3 @@
-"""
-Unified settings manager implementation.
-"""
 from __future__ import annotations
 
 import threading

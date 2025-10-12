@@ -1,6 +1,3 @@
-"""
-Utility functions for dictionary operations.
-"""
 from typing import Any
 
 
@@ -38,6 +35,3 @@ def update_dict(base: dict[str, Any], update: dict[str, Any]) -> dict[str, Any]:
             result[key] = value
 
     return result
-
-
-
