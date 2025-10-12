@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
+## [Unreleased]
+
+### Added
+- **Bootstrap Pattern**: New `load_user_configs()` helper function for centralized configuration loading across multiple modules
+- **Deep Merge Utility**: Exported `update_dict()` function for deep merging of nested configuration dictionaries
+- Comprehensive documentation for Bootstrap Pattern with recommended implementation examples
+- FAQ section covering common Bootstrap Pattern questions
+- Project structure examples for multi-module applications
+- Support for custom manager names in `load_user_configs()` (defaults to `settings_manager`)
+
+### Changed
+- **Documentation**: Major README restructure with improved organization and Table of Contents
+- Enhanced Bootstrap Pattern section with production-ready examples
+- Improved configuration file structure documentation with YAML examples
+- Better separation between simple single-module and complex multi-module use cases
+
+### Removed
+- Removed "Complex Settings with Nested Configuration" section from README (Pydantic-specific, not package-specific)
+
 ## [2.2.0] - 2025-09-08
 
 ### Added

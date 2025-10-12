@@ -21,8 +21,9 @@ Features:
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Import the unified manager and related components
+from .helpers import load_user_configs
 from .manager import DEFAULT_KEY, SettingsManager
+from .utils import update_dict
 
 __version__ = "2.2.0"
 
@@ -34,4 +35,8 @@ __all__ = [
     "SettingsConfigDict",
     # Unified settings manager
     "SettingsManager",
+    # .helpers
+    "load_user_configs",
+    # .utils
+    "update_dict",
 ]
