@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - **Bootstrap Pattern**: New `load_user_configs()` helper function for centralized configuration loading across multiple modules
 - **Deep Merge Utility**: Exported `update_dict()` function for deep merging of nested configuration dictionaries
+- **New Method**: `get_settings(key: str | None = None)` - More intuitive method for getting settings by key or current active settings
 - Comprehensive documentation for Bootstrap Pattern with recommended implementation examples
 - FAQ section covering common Bootstrap Pattern questions
 - Project structure examples for multi-module applications
@@ -19,6 +20,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Enhanced Bootstrap Pattern section with production-ready examples
 - Improved configuration file structure documentation with YAML examples
 - Better separation between simple single-module and complex multi-module use cases
+
+### Deprecated
+- `get_settings_by_key(key: str | None)` - Use `get_settings(key)` instead (will be removed in v3.0.0)
 
 ### Removed
 - Removed "Complex Settings with Nested Configuration" section from README (Pydantic-specific, not package-specific)

@@ -266,9 +266,60 @@ class SettingsManager(Generic[T]):
 
             self._cache_valid = False
 
+    def get_settings(self, key: str | None = None) -> T:
+        """
+        Get settings by key or return current active settings.
+
+        This is a convenience method that combines the functionality of:
+        - `settings` property (when key=None)
+        - Key-based access (when key is specified in multi mode)
+
+        Args:
+            key: Configuration key (multi mode only).
+                If None, returns current active settings.
+
+        Returns:
+            Settings object for the specified key or current active settings.
+
+        Raises:
+            ValueError: If key is specified in single mode, or key doesn't exist.
+
+        Examples:
+            ```python
+            # Single mode
+            manager = SettingsManager(MySettings)
+            settings = manager.get_settings()  # Same as manager.settings
+
+            # Multi mode
+            manager = SettingsManager(MySettings, multi=True)
+            dev = manager.get_settings("dev")
+            current = manager.get_settings()  # Current active settings
+            ```
+        """
+        if not self.multi:
+            if key is not None:
+                raise ValueError("Getting settings by key is only available in multi mode")
+
+            return self.settings
+
+        if key is None:
+            return self.settings
+
+        with self._lock:
+            self._ensure_cache()
+
+            if key not in self._cache:
+                raise ValueError(f"Key '{key}' does not exist in settings map")
+
+            return self._cache[key]
+
     def get_settings_by_key(self, key: str | None) -> T:
         """
         Get settings by specific key.
+
+        .. deprecated:: 2.3.0
+            Use :meth:`get_settings` instead.
+            This method will be removed in version 3.0.0.
 
         This method is only available in multi mode (multi=True).
 
@@ -281,20 +332,15 @@ class SettingsManager(Generic[T]):
         Raises:
             ValueError: If called in single mode, or if the key does not exist in multi mode
         """
-        if not self.multi:
-            raise ValueError("Getting settings by key is only available in multi mode")
+        import warnings
 
-        if not key:
-            # If no key is provided (None or empty), return the default settings
-            return self.settings
-
-        with self._lock:
-            self._ensure_cache()
-
-            if key not in self._cache:
-                raise ValueError(f"Key '{key}' does not exist in settings map")
-
-            return self._cache[key]
+        warnings.warn(
+            "get_settings_by_key() is deprecated and will be removed in version 3.0.0. "
+            "Use get_settings() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.get_settings(key)
 
     def clear(self) -> None:
         """

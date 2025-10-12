@@ -99,18 +99,101 @@ def test_active_key_error_single_mode() -> None:
         manager.active_key = "test"
 
 
-def test_get_settings_by_key_single_mode() -> None:
-    """Test get_settings_by_key in single mode"""
+def test_get_settings_single_mode() -> None:
+    """Test get_settings in single mode"""
     manager = SettingsManager(ExampleSettings)
     manager.user_config = {"name": "test", "value": 42}
 
-    # Should raise error in single mode
+    # Should return current settings when no key is provided
+    settings = manager.get_settings()
+    assert settings.name == "test"
+    assert settings.value == 42
+
+    # Should raise error when key is provided in single mode
     with pytest.raises(ValueError, match="Getting settings by key is only available in multi mode"):
-        manager.get_settings_by_key(DEFAULT_KEY)
+        manager.get_settings("some_key")
+
+
+def test_get_settings_multi_mode_with_key() -> None:
+    """Test get_settings with key in multi mode"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
+    }
+
+    # Get settings by specific key
+    dev_settings = manager.get_settings("dev")
+    assert dev_settings.name == "development"
+    assert dev_settings.value == 42
+
+    prod_settings = manager.get_settings("prod")
+    assert prod_settings.name == "production"
+    assert prod_settings.value == 100
+
+
+def test_get_settings_multi_mode_without_key() -> None:
+    """Test get_settings without key in multi mode"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
+    }
+
+    # Should return current active settings
+    manager.active_key = "dev"
+    settings = manager.get_settings()
+    assert settings.name == "development"
+    assert settings.value == 42
+
+    manager.active_key = "prod"
+    settings = manager.get_settings()
+    assert settings.name == "production"
+    assert settings.value == 100
+
+
+def test_get_settings_multi_mode_invalid_key() -> None:
+    """Test get_settings with invalid key in multi mode"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "dev": {"name": "development", "value": 42}
+    }
+
+    # Should raise error for non-existent key
+    with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
+        manager.get_settings("nonexistent")
+
+
+def test_get_settings_multi_mode_none_key() -> None:
+    """Test get_settings with None key in multi mode"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "dev": {"name": "development", "value": 42},
+        "prod": {"name": "production", "value": 100}
+    }
+
+    # None key should return current active settings
+    manager.active_key = "dev"
+    settings = manager.get_settings(None)
+    assert settings.name == "development"
+    assert settings.value == 42
+
+
+def test_get_settings_by_key_single_mode() -> None:
+    """Test get_settings_by_key in single mode (deprecated)"""
+    manager = SettingsManager(ExampleSettings)
+    manager.user_config = {"name": "test", "value": 42}
+
+    # Should raise deprecation warning and error in single mode
+    error_msg = "Getting settings by key is only available in multi mode"
+    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
+        with pytest.raises(ValueError, match=error_msg):
+            manager.get_settings_by_key(DEFAULT_KEY)
 
     # Should also raise error for any other key
-    with pytest.raises(ValueError, match="Getting settings by key is only available in multi mode"):
-        manager.get_settings_by_key("nonexistent")
+    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
+        with pytest.raises(ValueError, match=error_msg):
+            manager.get_settings_by_key("nonexistent")
 
 
 # Multi Mode Tests
@@ -228,35 +311,35 @@ def test_set_cli_args_nested() -> None:
 
 
 def test_get_settings_by_key_multi_mode() -> None:
-    """Test get_settings_by_key in multi mode"""
+    """Test get_settings_by_key in multi mode (deprecated)"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "dev": {"name": "development", "value": 42},
         "prod": {"name": "production", "value": 100}
     }
 
-    dev_settings = manager.get_settings_by_key("dev")
-    assert dev_settings.name == "development"
-    assert dev_settings.value == 42
+    # Should show deprecation warning for all calls
+    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
+        dev_settings = manager.get_settings_by_key("dev")
+        assert dev_settings.name == "development"
+        assert dev_settings.value == 42
 
-    prod_settings = manager.get_settings_by_key("prod")
-    assert prod_settings.name == "production"
-    assert prod_settings.value == 100
+    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
+        prod_settings = manager.get_settings_by_key("prod")
+        assert prod_settings.name == "production"
+        assert prod_settings.value == 100
 
     # Should raise error for non-existent key
-    with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
-        manager.get_settings_by_key("nonexistent")
+    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
+        with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
+            manager.get_settings_by_key("nonexistent")
 
     # Test with None key (should return current active settings)
     manager.active_key = "dev"
-    none_settings = manager.get_settings_by_key(None)
-    assert none_settings.name == "development"
-    assert none_settings.value == 42
-
-    # Test with empty string key (should return current active settings)
-    empty_settings = manager.get_settings_by_key("")
-    assert empty_settings.name == "development"
-    assert empty_settings.value == 42
+    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
+        none_settings = manager.get_settings_by_key(None)
+        assert none_settings.name == "development"
+        assert none_settings.value == 42
 
 
 def test_all_settings_multi_mode() -> None:

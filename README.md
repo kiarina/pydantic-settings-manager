@@ -405,8 +405,8 @@ manager.set_cli_args("nested.value", "test")  # Supports nested keys
 manager.cli_args = {"debug": False, "max_connections": 200}
 
 # Get specific settings by key (multi mode)
-dev_settings = manager.get_settings_by_key("development")
-prod_settings = manager.get_settings_by_key("production")
+dev_settings = manager.get_settings("development")
+prod_settings = manager.get_settings("production")
 ```
 
 ## CLI Integration
@@ -581,9 +581,10 @@ class SettingsManager(Generic[T]):
 - `active_key: str | None` - Get/set active key (multi mode only)
 
 #### Methods
+- `get_settings(key: str | None = None) -> T` - Get settings by key or current active settings
 - `clear() -> None` - Clear cached settings
-- `get_settings_by_key(key: str) -> T` - Get settings by specific key
 - `set_cli_args(target: str, value: Any) -> None` - Set individual CLI argument
+- `get_settings_by_key(key: str | None) -> T` - **[Deprecated]** Use `get_settings()` instead (will be removed in v3.0.0)
 
 ## License
 
