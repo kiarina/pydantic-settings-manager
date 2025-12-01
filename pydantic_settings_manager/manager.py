@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import threading
-from typing import Any, Generic, TypeVar
+from typing import Any
 
 from pydantic_settings import BaseSettings
 
+from .types import SettingsKey
 from .utils import update_dict
-
-T = TypeVar("T", bound=BaseSettings)
 
 DEFAULT_KEY = "default"
 """
@@ -15,7 +14,7 @@ Default key for single mode
 """
 
 
-class SettingsManager(Generic[T]):
+class SettingsManager[T: BaseSettings]:
     """
     A unified settings manager that can handle both single and multiple configurations.
 
@@ -89,7 +88,7 @@ class SettingsManager(Generic[T]):
         self._user_config: dict[str, dict[str, Any]] = {}
         """Internal user configuration storage"""
 
-        self._active_key: str | None = None
+        self._active_key: SettingsKey | None = None
         """The currently active key"""
 
         self._cli_args: dict[str, Any] = {}
@@ -197,7 +196,7 @@ class SettingsManager(Generic[T]):
             self._cache_valid = False
 
     @property
-    def active_key(self) -> str | None:
+    def active_key(self) -> SettingsKey | None:
         """
         Get the active key.
 
@@ -211,7 +210,7 @@ class SettingsManager(Generic[T]):
             return self._active_key
 
     @active_key.setter
-    def active_key(self, key: str | None) -> None:
+    def active_key(self, key: SettingsKey | None) -> None:
         """
         Set the active key.
 
@@ -266,7 +265,7 @@ class SettingsManager(Generic[T]):
 
             self._cache_valid = False
 
-    def get_settings(self, key: str | None = None) -> T:
+    def get_settings(self, key: SettingsKey | None = None) -> T:
         """
         Get settings by key or return current active settings.
 
