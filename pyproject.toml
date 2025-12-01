@@ -1,6 +1,6 @@
 [project]
 name = "pydantic-settings-manager"
-version = "2.3.1"
+version = "2.4.0"
 description = "A library for managing Pydantic settings objects"
 authors = [
     { name = "kiarina", email = "kiarinadawa@gmail.com" }
@@ -14,14 +14,11 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
     "pydantic>=2.0.0",
     "pydantic-settings>=2.0.0",
@@ -40,7 +37,7 @@ build-backend = "hatchling.build"
 pydantic_settings_manager = ["py.typed"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -57,7 +54,7 @@ incremental = true
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py312"
 fix = true
 
 [tool.ruff.lint]

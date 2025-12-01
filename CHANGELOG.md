@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2.4.0] - 2025-12-02
+
+### Added
+- `SettingsKey` type alias for better type safety and code clarity when working with configuration keys
+
+### Changed
+- **BREAKING**: Minimum Python version upgraded from 3.9 to 3.12
+- Modernized codebase to use Python 3.12+ syntax (PEP 695):
+  - `type` keyword for type aliases
+  - Type parameter syntax for generic classes
+- Updated CI to test only Python 3.12 and 3.13
+- Updated mypy and ruff target versions to py312
+
+### Removed
+- **BREAKING**: Dropped support for Python 3.9, 3.10, and 3.11
+- Removed `typing_extensions` dependency (no longer needed with Python 3.12+)
+
 ## [2.3.1] - 2025-10-13
 
 ### Fixed
