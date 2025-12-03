@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- **Configuration Aliases**: Multi-mode now supports aliases to reference the same configuration with different keys
+  - Define aliases in `user_config` with `"aliases": {"dev": "development", ...}`
+  - Supports multi-level aliases (alias of alias)
+  - Circular reference detection with clear error messages
+  - Useful for short names, service-specific keys, and migration scenarios
+  - Works with both direct and structured configuration formats
+
 ## [2.4.0] - 2025-12-02
 
 ### Added

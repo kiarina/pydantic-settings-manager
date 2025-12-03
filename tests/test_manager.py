@@ -511,6 +511,178 @@ def test_thread_safety_properties() -> None:
     assert all_settings1 is not all_settings2
 
 
+# Alias Tests
+
+
+def test_alias_basic() -> None:
+    """Test basic alias functionality"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {
+            "dev": "development",
+            "stg": "staging",
+        },
+        "map": {
+            "development": {"name": "dev_name", "value": 1},
+            "staging": {"name": "stg_name", "value": 2},
+        },
+    }
+
+    # Access via alias
+    dev_settings = manager.get_settings("dev")
+    assert dev_settings.name == "dev_name"
+    assert dev_settings.value == 1
+
+    # Access via original key
+    dev_settings_direct = manager.get_settings("development")
+    assert dev_settings_direct.name == "dev_name"
+    assert dev_settings_direct.value == 1
+
+    # Access via another alias
+    stg_settings = manager.get_settings("stg")
+    assert stg_settings.name == "stg_name"
+    assert stg_settings.value == 2
+
+
+def test_alias_multi_level() -> None:
+    """Test multi-level alias (alias of alias)"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {
+            "a": "b",
+            "b": "c",
+            "c": "target",
+        },
+        "map": {
+            "target": {"name": "final", "value": 42},
+        },
+    }
+
+    # All aliases should resolve to the same target
+    assert manager.get_settings("a").name == "final"
+    assert manager.get_settings("b").name == "final"
+    assert manager.get_settings("c").name == "final"
+    assert manager.get_settings("target").name == "final"
+
+
+def test_alias_circular_reference() -> None:
+    """Test circular alias reference detection"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {
+            "a": "b",
+            "b": "c",
+            "c": "a",  # Circular reference
+        },
+        "map": {"target": {"name": "test", "value": 1}},
+    }
+
+    # Should raise error when trying to resolve circular alias
+    with pytest.raises(ValueError, match="Circular alias reference detected"):
+        manager.get_settings("a")
+
+
+def test_alias_nonexistent_target() -> None:
+    """Test alias pointing to non-existent target"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {"dev": "nonexistent"},
+        "map": {"staging": {"name": "stg", "value": 1}},
+    }
+
+    # Should show both original and resolved key in error
+    with pytest.raises(
+        ValueError, match="Key 'dev' \\(resolved to 'nonexistent'\\) does not exist"
+    ):
+        manager.get_settings("dev")
+
+
+def test_alias_with_active_key() -> None:
+    """Test alias with active_key property"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {"dev": "development"},
+        "map": {
+            "development": {"name": "dev_name", "value": 1},
+            "production": {"name": "prod_name", "value": 2},
+        },
+    }
+
+    # Set active_key to alias
+    manager.active_key = "dev"
+
+    # .settings should resolve the alias
+    settings = manager.settings
+    assert settings.name == "dev_name"
+    assert settings.value == 1
+
+    # get_settings() should also work
+    settings2 = manager.get_settings()
+    assert settings2.name == "dev_name"
+    assert settings2.value == 1
+
+    # get_settings("dev") should also work
+    settings3 = manager.get_settings("dev")
+    assert settings3.name == "dev_name"
+    assert settings3.value == 1
+
+
+def test_alias_structured_format() -> None:
+    """Test alias with structured format configuration"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "key": "dev",
+        "aliases": {"dev": "development"},
+        "map": {
+            "development": {"name": "dev_name", "value": 1},
+        },
+    }
+
+    # Active key is set to "dev" (alias)
+    assert manager.active_key == "dev"
+
+    # Get settings via alias
+    settings = manager.get_settings("dev")
+    assert settings.name == "dev_name"
+
+
+def test_alias_active_key_circular_reference() -> None:
+    """Test circular alias reference with active_key"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {
+            "a": "b",
+            "b": "a",  # Circular reference
+        },
+        "map": {"target": {"name": "test", "value": 1}},
+    }
+
+    # Set active_key to circular alias
+    manager.active_key = "a"
+
+    # Should raise error when accessing .settings
+    with pytest.raises(ValueError, match="Circular alias reference detected"):
+        _ = manager.settings
+
+
+def test_alias_active_key_nonexistent_target() -> None:
+    """Test active_key with alias pointing to non-existent target"""
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "aliases": {"dev": "nonexistent"},
+        "map": {"staging": {"name": "stg", "value": 1}},
+    }
+
+    # Set active_key to alias with non-existent target
+    manager.active_key = "dev"
+
+    # Should show both original and resolved key in error
+    with pytest.raises(
+        ValueError, match="Active key 'dev' \\(resolved to 'nonexistent'\\) does not exist"
+    ):
+        _ = manager.settings
+
+
 # Compatibility Tests
 
 

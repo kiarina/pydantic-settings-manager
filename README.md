@@ -393,6 +393,97 @@ for env, settings in all_settings.items():
     print(f"{env}: {settings.app_name}")
 ```
 
+### Configuration Aliases
+
+In multi-mode, you can define aliases to reference the same configuration with different keys. This is useful for:
+- **Short names**: `dev` → `development`, `prod` → `production`
+- **Service-specific keys**: Multiple services sharing the same environment configuration
+- **Migration**: Maintaining old key names while transitioning to new ones
+
+```python
+manager = SettingsManager(AppSettings, multi=True)
+
+# Define aliases with structured format
+manager.user_config = {
+    "aliases": {
+        # Short names
+        "dev": "development",
+        "stg": "staging",
+        "prod": "production",
+
+        # Service-specific aliases (share same environment)
+        "account_service": "staging",
+        "data_service": "staging",
+        "analytics_service": "staging",
+
+        # Multi-level aliases (alias of alias)
+        "d": "dev",  # d → dev → development
+    },
+    "map": {
+        "development": {
+            "app_name": "MyApp-Dev",
+            "debug": True,
+            "max_connections": 10
+        },
+        "staging": {
+            "app_name": "MyApp-Staging",
+            "debug": False,
+            "max_connections": 50
+        },
+        "production": {
+            "app_name": "MyApp-Prod",
+            "debug": False,
+            "max_connections": 1000
+        }
+    }
+}
+
+# All of these return the same settings
+dev_settings = manager.get_settings("development")
+dev_settings = manager.get_settings("dev")
+dev_settings = manager.get_settings("d")
+
+# Service-specific keys all resolve to staging
+account_settings = manager.get_settings("account_service")
+data_settings = manager.get_settings("data_service")
+# Both return the same staging configuration
+```
+
+**YAML Configuration Example:**
+
+```yaml
+# config/production.yaml
+settings.app:
+  aliases:
+    # Short names for convenience
+    dev: development
+    stg: staging
+    prod: production
+
+    # Service-specific aliases
+    account_service: staging
+    data_service: staging
+
+  map:
+    development:
+      app_name: "MyApp-Dev"
+      debug: true
+      max_connections: 10
+    staging:
+      app_name: "MyApp-Staging"
+      debug: false
+      max_connections: 50
+    production:
+      app_name: "MyApp-Prod"
+      debug: false
+      max_connections: 1000
+```
+
+**Benefits:**
+- **DRY Principle**: Avoid duplicating the same configuration values
+- **Flexibility**: Easy to split configurations later without changing code
+- **Clarity**: Use descriptive names in code while keeping config files concise
+
 ## Advanced Usage
 
 ### Thread Safety

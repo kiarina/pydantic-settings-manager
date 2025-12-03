@@ -88,6 +88,9 @@ class SettingsManager[T: BaseSettings]:
         self._user_config: dict[str, dict[str, Any]] = {}
         """Internal user configuration storage"""
 
+        self._aliases: dict[str, str] = {}
+        """Configuration key aliases"""
+
         self._active_key: SettingsKey | None = None
         """The currently active key"""
 
@@ -126,7 +129,8 @@ class SettingsManager[T: BaseSettings]:
             The current active settings object
 
         Raises:
-            ValueError: If the active key does not exist in the settings map
+            ValueError: If the active key does not exist in the settings map,
+                or circular alias reference is detected
         """
         with self._lock:
             self._ensure_cache()
@@ -135,12 +139,22 @@ class SettingsManager[T: BaseSettings]:
                 return self._cache[DEFAULT_KEY]
 
             if self._active_key:
-                if self._active_key not in self._cache:
-                    raise ValueError(
-                        f"Active key '{self._active_key}' does not exist in settings map"
-                    )
+                # Resolve alias if active_key is an alias
+                resolved_key = self._resolve_alias(self._active_key)
 
-                return self._cache[self._active_key]
+                if resolved_key not in self._cache:
+                    # Show both original and resolved key in error message if different
+                    if self._active_key != resolved_key:
+                        raise ValueError(
+                            f"Active key '{self._active_key}' (resolved to '{resolved_key}') "
+                            f"does not exist in settings map"
+                        )
+                    else:
+                        raise ValueError(
+                            f"Active key '{self._active_key}' does not exist in settings map"
+                        )
+
+                return self._cache[resolved_key]
 
             if self._cache:
                 return self._cache[next(iter(self._cache.keys()))]
@@ -174,18 +188,20 @@ class SettingsManager[T: BaseSettings]:
                 Single mode:
                     `{"name": "app", "value": 42}`
                 Multi mode (Structured format):
-                    `{"key": "dev", "map": {"dev": {"name": ".."}, "stg": {"name": ".."}}}`
+                    `{"key": "dev", "map": {"dev": {"name": ".."}}, "aliases": {"hoge": "dev"}}`
                 Multi mode (Direct format):
                     `{"dev": {"name": ".."}, "stg": {"name": ".."}}`
         """
         with self._lock:
             if self.multi:
-                if set(value.keys()).issubset({"key", "map"}):
+                if set(value.keys()).issubset({"key", "map", "aliases"}):
                     # Structured format
                     if "key" in value:
                         self._active_key = value["key"]
                     if "map" in value:
                         self._user_config = dict(value["map"])
+                    if "aliases" in value:
+                        self._aliases = dict(value["aliases"])
                 else:
                     # Direct format
                     self._user_config = dict(value)
@@ -281,7 +297,8 @@ class SettingsManager[T: BaseSettings]:
             Settings object for the specified key or current active settings.
 
         Raises:
-            ValueError: If key is specified in single mode, or key doesn't exist.
+            ValueError: If key is specified in single mode, or key doesn't exist,
+                or circular alias reference is detected.
 
         Examples:
             ```python
@@ -307,10 +324,17 @@ class SettingsManager[T: BaseSettings]:
         with self._lock:
             self._ensure_cache()
 
-            if key not in self._cache:
-                raise ValueError(f"Key '{key}' does not exist in settings map")
+            resolved_key = self._resolve_alias(key)
 
-            return self._cache[key]
+            if resolved_key not in self._cache:
+                if key != resolved_key:
+                    raise ValueError(
+                        f"Key '{key}' (resolved to '{resolved_key}') does not exist in settings map"
+                    )
+                else:
+                    raise ValueError(f"Key '{key}' does not exist in settings map")
+
+            return self._cache[resolved_key]
 
     def get_settings_by_key(self, key: str | None) -> T:
         """
@@ -348,6 +372,40 @@ class SettingsManager[T: BaseSettings]:
         """
         with self._lock:
             self._cache_valid = False
+
+    def _resolve_alias(self, key: str, *, _visited: set[str] | None = None) -> str:
+        """
+        Resolve alias to actual key.
+
+        Supports multi-level aliases (alias of alias).
+        Prevents infinite loops with visited set.
+
+        Args:
+            key: The key to resolve
+            _visited: Internal set to track visited keys (for loop detection)
+
+        Returns:
+            The resolved key
+
+        Raises:
+            ValueError: If circular alias reference is detected
+        """
+        if not self._aliases:
+            return key
+
+        if _visited is None:
+            _visited = set()
+
+        if key in _visited:
+            chain = " -> ".join(_visited) + f" -> {key}"
+            raise ValueError(f"Circular alias reference detected: {chain}")
+
+        if key not in self._aliases:
+            return key
+
+        _visited.add(key)
+        target = self._aliases[key]
+        return self._resolve_alias(target, _visited=_visited)
 
     def _ensure_cache(self) -> None:
         """
