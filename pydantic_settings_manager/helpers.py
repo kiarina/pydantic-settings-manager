@@ -1,11 +1,11 @@
 from importlib import import_module
-from typing import Any
 
 from .manager import SettingsManager
+from .types import UserConfigs
 
 
 def load_user_configs(
-    user_configs: dict[str, Any],
+    user_configs: UserConfigs,
     *,
     manager_name: str = "settings_manager",
 ) -> None:
