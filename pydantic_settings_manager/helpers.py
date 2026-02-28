@@ -60,22 +60,53 @@ def load_user_configs(
                 f"got {type(user_config).__name__}"
             )
 
-        try:
-            module = import_module(module_name)
-        except ModuleNotFoundError as e:
-            raise ModuleNotFoundError(f"Module not found: {module_name}") from e
-
-        # Check if attribute exists
-        if not hasattr(module, manager_name):
-            raise AttributeError(f"Module {module_name} does not have a '{manager_name}' attribute")
-
-        settings_manager = getattr(module, manager_name)
-
-        # Validate manager type
-        if not isinstance(settings_manager, SettingsManager):
-            raise TypeError(
-                f"'{manager_name}' in module {module_name} is not an instance of "
-                f"SettingsManager (got {type(settings_manager).__name__})"
-            )
-
+        settings_manager = _resolve_settings_manager(module_name, manager_name)
         settings_manager.user_config = user_config
+
+
+def clear_user_configs(
+    user_configs: UserConfigs,
+    *,
+    manager_name: str = "settings_manager",
+) -> None:
+    """
+    Clear user configurations from their respective settings managers.
+
+    This function dynamically imports modules and resets their settings manager's
+    user_config property to an empty dictionary.
+
+    Args:
+        user_configs: A dictionary mapping module names to their configuration.
+            Keys are module names used to locate each target settings manager.
+            Values are ignored by this function.
+        manager_name: The name of the SettingsManager attribute in each module.
+            Defaults to "settings_manager".
+
+    Raises:
+        ModuleNotFoundError: If a specified module cannot be imported.
+        AttributeError: If a module doesn't have the specified manager attribute.
+        TypeError: If the manager attribute is not a SettingsManager instance.
+    """
+    for module_name in user_configs:
+        settings_manager = _resolve_settings_manager(module_name, manager_name)
+        settings_manager.user_config = {}
+
+
+def _resolve_settings_manager(module_name: str, manager_name: str) -> SettingsManager:
+    try:
+        module = import_module(module_name)
+    except ModuleNotFoundError as e:
+        raise ModuleNotFoundError(f"Module not found: {module_name}") from e
+
+    if not hasattr(module, manager_name):
+        raise AttributeError(f"Module {module_name} does not have a '{manager_name}' attribute")
+
+    settings_manager = getattr(module, manager_name)
+
+    if not isinstance(settings_manager, SettingsManager):
+        raise TypeError(
+            f"'{manager_name}' in module {module_name} is not an instance of "
+            f"SettingsManager (got {type(settings_manager).__name__})"
+        )
+
+    return settings_manager

@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- **Config Cleanup Helper**: Added `clear_user_configs()` to clear `user_config` for multiple modules in a single call
+- Exported `clear_user_configs` from the main package API
+- Added helper tests for `clear_user_configs()` including custom manager name handling
+- Added `docs/README.md` to define document targets for internal docs flows
+
+### Changed
+- Refactored helper internals to share module/manager resolution and validation logic between `load_user_configs()` and `clear_user_configs()`
+- Updated docs cheatsheet frontmatter to use `chat_model` and `tools_with_info` keys
+
 ## [2.5.1] - 2026-01-18
 
 ### Added
