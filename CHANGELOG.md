@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2.6.0] - 2026-03-01
+
 ### Added
 - **Config Cleanup Helper**: Added `clear_user_configs()` to clear `user_config` for multiple modules in a single call
 - Exported `clear_user_configs` from the main package API
