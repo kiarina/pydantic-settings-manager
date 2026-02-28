@@ -38,6 +38,9 @@ mise run update-changelog 1.0.0
 ```sh
 # Review changed files
 git diff pyproject.toml CHANGELOG.md
+
+# If lockfile changed (e.g. after CI/tools), review it too
+git diff uv.lock
 ```
 
 ### 4. Run CI Checks
@@ -50,6 +53,10 @@ mise run ci
 ```sh
 # Commit changes
 git add pyproject.toml CHANGELOG.md
+
+# Include lockfile too if it changed
+git add uv.lock
+
 git commit -m "chore: release v1.0.0"
 
 # Create annotated tag
@@ -96,6 +103,10 @@ mise run update-changelog 1.0.0-alpha.1
 
 # Commit and tag
 git add pyproject.toml CHANGELOG.md
+
+# Include lockfile too if it changed
+git add uv.lock
+
 git commit -m "chore: release v1.0.0-alpha.1"
 git tag -a v1.0.0-alpha.1 -m "Release v1.0.0-alpha.1"
 git push origin main --tags
