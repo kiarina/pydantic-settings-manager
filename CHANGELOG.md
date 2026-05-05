@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-05-06
+
 ### Added
 - **Config Merge Policy**: Added `policy` parameter to `load_user_configs()` to control how configurations are applied
   - `"replace"` (default): replaces the existing `user_config` entirely (existing behavior, fully backward-compatible)
