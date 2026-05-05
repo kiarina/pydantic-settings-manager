@@ -25,7 +25,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from .helpers import clear_user_configs, load_user_configs
 from .manager import DEFAULT_KEY, SettingsManager
-from .types import ModuleName, SettingsKey, UserConfig, UserConfigs
+from .types import ConfigPolicy, ModuleName, SettingsKey, UserConfig, UserConfigs
 from .utils import update_dict
 
 __version__ = version("pydantic-settings-manager")
@@ -33,6 +33,7 @@ __version__ = version("pydantic-settings-manager")
 __all__ = [
     "DEFAULT_KEY",
     "BaseSettings",
+    "ConfigPolicy",
     "ModuleName",
     "SettingsConfigDict",
     "SettingsKey",

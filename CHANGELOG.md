@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+- **Config Merge Policy**: Added `policy` parameter to `load_user_configs()` to control how configurations are applied
+  - `"replace"` (default): replaces the existing `user_config` entirely (existing behavior, fully backward-compatible)
+  - `"merge"`: deep-merges into the existing `user_config`; dicts are merged recursively, all other types (None, bool, int, float, str, list) are replaced
+  - Useful when calling `load_user_configs()` multiple times on the same manager, e.g. applying a global config first and then environment-specific overrides
+- Added `ConfigPolicy` type alias (`Literal["replace", "merge"]`) and exported it from the main package API
+
 ## [2.6.0] - 2026-03-01
 
 ### Added

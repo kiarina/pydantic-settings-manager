@@ -202,6 +202,120 @@ def test_load_user_configs_partial_failure() -> None:
         del sys.modules["test_partial1"]
 
 
+class NestedSettings(BaseSettings):
+    """Settings with a nested dict field for merge testing"""
+
+    name: str = "default"
+    value: int = 0
+    nested: dict[str, Any] = {}
+
+
+def test_load_user_configs_policy_replace() -> None:
+    """Test that policy='replace' (default) replaces existing config"""
+    module = ModuleType("test_policy_replace")
+    module.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]
+    sys.modules["test_policy_replace"] = module
+
+    try:
+        load_user_configs({"test_policy_replace": {"name": "first", "value": 1}})
+        load_user_configs({"test_policy_replace": {"name": "second"}}, policy="replace")
+
+        settings = module.settings_manager.settings
+        assert settings.name == "second"
+        assert settings.value == 0  # reset to default because config was replaced
+
+    finally:
+        del sys.modules["test_policy_replace"]
+
+
+def test_load_user_configs_policy_merge_flat() -> None:
+    """Test that policy='merge' merges flat fields without resetting untouched keys"""
+    module = ModuleType("test_policy_merge_flat")
+    module.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]
+    sys.modules["test_policy_merge_flat"] = module
+
+    try:
+        load_user_configs({"test_policy_merge_flat": {"name": "first", "value": 1}})
+        load_user_configs({"test_policy_merge_flat": {"name": "second"}}, policy="merge")
+
+        settings = module.settings_manager.settings
+        assert settings.name == "second"
+        assert settings.value == 1  # preserved from first load
+
+    finally:
+        del sys.modules["test_policy_merge_flat"]
+
+
+def test_load_user_configs_policy_merge_nested() -> None:
+    """Test that policy='merge' deep-merges nested dicts"""
+
+    module = ModuleType("test_policy_merge_nested")
+    module.settings_manager = SettingsManager(NestedSettings)  # type: ignore[attr-defined]
+    sys.modules["test_policy_merge_nested"] = module
+
+    try:
+        load_user_configs(
+            {"test_policy_merge_nested": {"nested": {"a": 1, "b": 2}}},
+        )
+        load_user_configs(
+            {"test_policy_merge_nested": {"nested": {"b": 99, "c": 3}}},
+            policy="merge",
+        )
+
+        settings: NestedSettings = module.settings_manager.settings
+        assert settings.nested == {"a": 1, "b": 99, "c": 3}
+
+    finally:
+        del sys.modules["test_policy_merge_nested"]
+
+
+def test_load_user_configs_policy_merge_list_replaced() -> None:
+    """Test that policy='merge' replaces lists (not appends)"""
+    module = ModuleType("test_policy_merge_list")
+    module.settings_manager = SettingsManager(NestedSettings)  # type: ignore[attr-defined]
+    sys.modules["test_policy_merge_list"] = module
+
+    try:
+        load_user_configs(
+            {"test_policy_merge_list": {"nested": {"items": [1, 2, 3]}}},
+        )
+        load_user_configs(
+            {"test_policy_merge_list": {"nested": {"items": [4, 5]}}},
+            policy="merge",
+        )
+
+        settings: NestedSettings = module.settings_manager.settings
+        assert settings.nested == {"items": [4, 5]}
+
+    finally:
+        del sys.modules["test_policy_merge_list"]
+
+
+def test_load_user_configs_policy_merge_multi_mode() -> None:
+    """Test that policy='merge' works correctly with multi-mode managers"""
+    module = ModuleType("test_policy_merge_multi")
+    module.settings_manager = SettingsManager(ExampleSettings, multi=True)  # type: ignore[attr-defined]
+    sys.modules["test_policy_merge_multi"] = module
+
+    try:
+        load_user_configs(
+            {"test_policy_merge_multi": {"dev": {"name": "dev-app", "value": 1}}},
+        )
+        load_user_configs(
+            {"test_policy_merge_multi": {"prod": {"name": "prod-app", "value": 2}}},
+            policy="merge",
+        )
+
+        manager: SettingsManager[ExampleSettings] = module.settings_manager
+        manager.active_key = "dev"
+        assert manager.settings.name == "dev-app"
+        manager.active_key = "prod"
+        assert manager.settings.name == "prod-app"
+
+    finally:
+        del sys.modules["test_policy_merge_multi"]
+
+
 def test_clear_user_configs_success() -> None:
     """Test successful clearing of user configs"""
     module1 = ModuleType("test_clear_module1")

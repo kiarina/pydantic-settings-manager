@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Literal
 
 type SettingsKey = str
 """
@@ -27,4 +27,13 @@ Type alias for multiple user configurations.
 
 Maps module names to their respective configuration dictionaries.
 Used in load_user_configs function.
+"""
+
+type ConfigPolicy = Literal["replace", "merge"]
+"""
+Type alias for configuration merge policy.
+
+- "replace": replace the existing user_config entirely (default)
+- "merge": deep-merge into the existing user_config (dicts are merged recursively,
+  all other types are replaced)
 """

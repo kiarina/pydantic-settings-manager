@@ -1,13 +1,15 @@
 from importlib import import_module
 
 from .manager import SettingsManager
-from .types import UserConfigs
+from .types import ConfigPolicy, UserConfigs
+from .utils import update_dict
 
 
 def load_user_configs(
     user_configs: UserConfigs,
     *,
     manager_name: str = "settings_manager",
+    policy: ConfigPolicy = "replace",
 ) -> None:
     """
     Load user configurations into their respective settings managers.
@@ -23,6 +25,13 @@ def load_user_configs(
             user_config property.
         manager_name: The name of the SettingsManager attribute in each module.
             Defaults to "settings_manager".
+        policy: How to apply the configuration to each manager. Defaults to "replace".
+            - "replace": replace the existing user_config entirely.
+            - "merge": deep-merge into the existing user_config. Dicts are merged
+              recursively; all other types (None, bool, int, float, str, list) are
+              replaced. Useful when calling load_user_configs multiple times on the
+              same manager, e.g. applying a global config first and then
+              environment-specific overrides.
 
     Raises:
         ModuleNotFoundError: If a specified module cannot be imported.
@@ -61,7 +70,11 @@ def load_user_configs(
             )
 
         settings_manager = _resolve_settings_manager(module_name, manager_name)
-        settings_manager.user_config = user_config
+
+        if policy == "merge":
+            settings_manager.user_config = update_dict(settings_manager.user_config, user_config)
+        else:
+            settings_manager.user_config = user_config
 
 
 def clear_user_configs(
