@@ -27,7 +27,10 @@ jobs:
             - name: Setup Python via mise
               run: |
                   mise use python@3.13
-                  mise install
+                  mise install python
+
+            - name: Install uv
+              uses: astral-sh/setup-uv@v8
 
             - name: Install dependencies
               run: |
