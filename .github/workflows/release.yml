@@ -13,6 +13,8 @@ jobs:
     build-and-publish:
         name: Build and publish to PyPI
         runs-on: ubuntu-latest
+        env:
+            MISE_GITHUB_ATTESTATIONS: "false"
 
         steps:
             - uses: actions/checkout@v6
