@@ -23,7 +23,7 @@ This library fills these gaps with a unified, thread-safe settings manager.
 
 ## Tech Stack
 
-- language: Python 3.9+
+- language: Python 3.12+
 - runtime management: mise
 - dependency / environment management: uv
 - code formatting: ruff
