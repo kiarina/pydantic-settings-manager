@@ -143,26 +143,34 @@ class SettingsManager[T: BaseSettings]:
 
             target_key = self._active_key if self._active_key is not None else self._default_key
 
-            if target_key is not None:
-                # Resolve alias if target_key is an alias
-                resolved_key = self._resolve_alias(target_key)
+            if target_key is None:
+                target_key = DEFAULT_KEY
 
-                if resolved_key not in self._cache:
-                    # Show both original and resolved key in error message if different
-                    if target_key != resolved_key:
-                        raise ValueError(
-                            f"Key '{target_key}' (resolved to '{resolved_key}') "
-                            f"does not exist in settings map"
-                        )
-                    else:
-                        raise ValueError(f"Key '{target_key}' does not exist in settings map")
+            # Resolve alias if target_key is an alias
+            resolved_key = self._resolve_alias(target_key)
 
-                return self._cache[resolved_key]
+            if resolved_key not in self._cache:
+                if (
+                    self._active_key is None
+                    and self._default_key is None
+                    and target_key == DEFAULT_KEY
+                ):
+                    raise ValueError(
+                        "No active or default configuration is set, "
+                        f"and fallback key '{DEFAULT_KEY}' does not exist in settings map. "
+                        "Set `manager.active_key`, add `default` to user_config, "
+                        "or use 'default' as a config key."
+                    )
+                # Show both original and resolved key in error message if different
+                if target_key != resolved_key:
+                    raise ValueError(
+                        f"Key '{target_key}' (resolved to '{resolved_key}') "
+                        f"does not exist in settings map"
+                    )
+                else:
+                    raise ValueError(f"Key '{target_key}' does not exist in settings map")
 
-            raise ValueError(
-                "No active or default configuration is set. Set `manager.active_key`, "
-                "add `default` to user_config, or call `get_settings(<name>)`."
-            )
+            return self._cache[resolved_key]
 
     @property
     def user_config(self) -> dict[str, Any]:

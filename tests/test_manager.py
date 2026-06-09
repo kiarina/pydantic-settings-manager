@@ -197,8 +197,23 @@ def test_no_default_and_no_active_key_raises_on_settings() -> None:
             "production": {"debug": False},
         },
     }
-    with pytest.raises(ValueError, match="No active or default configuration is set"):
+    with pytest.raises(
+        ValueError,
+        match="No active or default configuration is set, and fallback key 'default'",
+    ):
         _ = manager.settings
+
+
+def test_no_default_falls_back_to_default_key() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "configs": {
+            "default": {"debug": True},
+            "production": {"debug": False},
+        },
+    }
+    # Should fallback to DEFAULT_KEY ("default")
+    assert manager.settings.debug is True
 
 
 # Multi Mode Tests

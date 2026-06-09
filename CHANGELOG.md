@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-06-10
+
+### Added
+
+- Multi mode now automatically falls back to `DEFAULT_KEY` (`"default"`) when no active or default configuration is explicitly set.
+
 ## [3.0.0] - 2026-06-10
 
 ### Breaking Changes
