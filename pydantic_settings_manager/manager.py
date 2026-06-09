@@ -91,6 +91,9 @@ class SettingsManager[T: BaseSettings]:
         self._aliases: dict[str, str] = {}
         """Configuration key aliases"""
 
+        self._default_key: str | None = None
+        """The default key used when active_key is not set"""
+
         self._active_key: SettingsKey | None = None
         """The currently active key"""
 
@@ -138,28 +141,28 @@ class SettingsManager[T: BaseSettings]:
             if not self.multi:
                 return self._cache[DEFAULT_KEY]
 
-            if self._active_key:
-                # Resolve alias if active_key is an alias
-                resolved_key = self._resolve_alias(self._active_key)
+            target_key = self._active_key if self._active_key is not None else self._default_key
+
+            if target_key is not None:
+                # Resolve alias if target_key is an alias
+                resolved_key = self._resolve_alias(target_key)
 
                 if resolved_key not in self._cache:
                     # Show both original and resolved key in error message if different
-                    if self._active_key != resolved_key:
+                    if target_key != resolved_key:
                         raise ValueError(
-                            f"Active key '{self._active_key}' (resolved to '{resolved_key}') "
+                            f"Key '{target_key}' (resolved to '{resolved_key}') "
                             f"does not exist in settings map"
                         )
                     else:
-                        raise ValueError(
-                            f"Active key '{self._active_key}' does not exist in settings map"
-                        )
+                        raise ValueError(f"Key '{target_key}' does not exist in settings map")
 
                 return self._cache[resolved_key]
 
-            if self._cache:
-                return self._cache[next(iter(self._cache.keys()))]
-
-            return self.settings_cls(**update_dict({}, self._cli_args))
+            raise ValueError(
+                "No active or default configuration is set. Set `manager.active_key`, "
+                "add `default` to user_config, or call `get_settings(<name>)`."
+            )
 
     @property
     def user_config(self) -> dict[str, Any]:
@@ -174,7 +177,12 @@ class SettingsManager[T: BaseSettings]:
         with self._lock:
             if self.multi:
                 # Deep copy to prevent external modification
-                return copy.deepcopy(self._user_config)
+                result: dict[str, Any] = {"configs": copy.deepcopy(self._user_config)}
+                if self._default_key is not None:
+                    result["default"] = self._default_key
+                if self._aliases:
+                    result["aliases"] = copy.deepcopy(self._aliases)
+                return result
             else:
                 return copy.deepcopy(self._user_config.get(DEFAULT_KEY, {}))
 
@@ -188,28 +196,83 @@ class SettingsManager[T: BaseSettings]:
                 Single mode:
                     `{"name": "app", "value": 42}`
                 Multi mode (Structured format):
-                    `{"key": "dev", "map": {"dev": {"name": ".."}}, "aliases": {"hoge": "dev"}}`
-                Multi mode (Direct format):
-                    `{"dev": {"name": ".."}, "stg": {"name": ".."}}`
+                    `{"default": "dev", "configs": {"dev": {"name": ".."}}}`
         """
         with self._lock:
             if self.multi:
-                if set(value.keys()).issubset({"key", "map", "aliases"}):
-                    # Structured format
-                    if "key" in value:
-                        self._active_key = value["key"]
-                    if "map" in value:
-                        self._user_config = dict(value["map"])
-                    if "aliases" in value:
-                        self._aliases = dict(value["aliases"])
-                else:
-                    # Direct format
-                    self._user_config = dict(value)
+                _ALLOWED_MULTI_KEYS = {"default", "configs", "aliases"}
+                unknown_keys = set(value) - _ALLOWED_MULTI_KEYS
+                if unknown_keys:
+                    raise ValueError(
+                        f"Invalid multi configuration keys: {sorted(unknown_keys)}. "
+                        "Allowed keys are: default, configs, aliases."
+                    )
+
+                if "configs" not in value:
+                    raise ValueError(
+                        "Multi configuration requires `configs`. "
+                        "Use {'default': ..., 'configs': {...}, 'aliases': {...}}."
+                    )
+
+                configs = value["configs"]
+                if not isinstance(configs, dict):
+                    raise TypeError("`configs` must be a dictionary.")
+
+                normalized_configs: dict[str, dict[str, Any]] = {}
+                for key, config in configs.items():
+                    if not isinstance(key, str):
+                        raise TypeError("All config names in `configs` must be strings.")
+                    if not isinstance(config, dict):
+                        raise TypeError(f"Config '{key}' must be a dictionary.")
+                    normalized_configs[key] = dict(config)
+
+                aliases_value = value.get("aliases", {})
+                if aliases_value is None:
+                    aliases_value = {}
+
+                if not isinstance(aliases_value, dict):
+                    raise TypeError("`aliases` must be a dictionary.")
+
+                aliases: dict[str, str] = {}
+                for alias, target in aliases_value.items():
+                    if not isinstance(alias, str) or not isinstance(target, str):
+                        raise TypeError("All alias names and targets must be strings.")
+                    aliases[alias] = target
+
+                default = value.get("default", None)
+                if default is not None and not isinstance(default, str):
+                    raise TypeError("`default` must be a string or None.")
+
+                self._user_config = normalized_configs
+                self._aliases = aliases
+                self._default_key = default
+                self._active_key = None
+                self._validate_aliases()
+                self._validate_default_key()
 
             else:
                 self._user_config[DEFAULT_KEY] = dict(value)
 
             self._cache_valid = False
+
+    def _validate_aliases(self) -> None:
+        for alias in self._aliases:
+            resolved = self._resolve_alias(alias)
+            if resolved not in self._user_config:
+                raise ValueError(
+                    f"Alias '{alias}' resolved to '{resolved}', but it does not exist in `configs`."
+                )
+
+    def _validate_default_key(self) -> None:
+        if self._default_key is None:
+            return
+
+        resolved = self._resolve_alias(self._default_key)
+        if resolved not in self._user_config:
+            raise ValueError(
+                f"Default configuration '{self._default_key}' "
+                f"resolved to '{resolved}', but it does not exist in `configs`."
+            )
 
     @property
     def active_key(self) -> SettingsKey | None:
@@ -336,34 +399,16 @@ class SettingsManager[T: BaseSettings]:
 
             return self._cache[resolved_key]
 
-    def get_settings_by_key(self, key: str | None) -> T:
+    def reset_user_config(self) -> None:
         """
-        Get settings by specific key.
-
-        .. deprecated:: 2.3.0
-            Use :meth:`get_settings` instead.
-            This method will be removed in version 3.0.0.
-
-        This method is only available in multi mode (multi=True).
-
-        Args:
-            key: The key to get settings for. If None or empty, returns the current active settings.
-
-        Returns:
-            The settings object for the specified key
-
-        Raises:
-            ValueError: If called in single mode, or if the key does not exist in multi mode
+        Reset user configuration and state to empty.
         """
-        import warnings
-
-        warnings.warn(
-            "get_settings_by_key() is deprecated and will be removed in version 3.0.0. "
-            "Use get_settings() instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.get_settings(key)
+        with self._lock:
+            self._user_config = {}
+            self._aliases = {}
+            self._default_key = None
+            self._active_key = None
+            self._cache_valid = False
 
     def clear(self) -> None:
         """
@@ -373,16 +418,16 @@ class SettingsManager[T: BaseSettings]:
         with self._lock:
             self._cache_valid = False
 
-    def _resolve_alias(self, key: str, *, _visited: set[str] | None = None) -> str:
+    def _resolve_alias(self, key: str, *, _chain: list[str] | None = None) -> str:
         """
         Resolve alias to actual key.
 
         Supports multi-level aliases (alias of alias).
-        Prevents infinite loops with visited set.
+        Prevents infinite loops with _chain list.
 
         Args:
             key: The key to resolve
-            _visited: Internal set to track visited keys (for loop detection)
+            _chain: Internal list to track visited keys (for loop detection)
 
         Returns:
             The resolved key
@@ -393,19 +438,17 @@ class SettingsManager[T: BaseSettings]:
         if not self._aliases:
             return key
 
-        if _visited is None:
-            _visited = set()
+        if _chain is None:
+            _chain = []
 
-        if key in _visited:
-            chain = " -> ".join(_visited) + f" -> {key}"
+        if key in _chain:
+            chain = " -> ".join([*_chain, key])
             raise ValueError(f"Circular alias reference detected: {chain}")
 
         if key not in self._aliases:
             return key
 
-        _visited.add(key)
-        target = self._aliases[key]
-        return self._resolve_alias(target, _visited=_visited)
+        return self._resolve_alias(self._aliases[key], _chain=[*_chain, key])
 
     def _ensure_cache(self) -> None:
         """

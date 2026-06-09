@@ -6,6 +6,27 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-06-10
+
+### Breaking Changes
+
+- Removed direct multi configuration format.
+- Replaced multi configuration fields `key` and `map` with `default` and `configs`.
+- Removed `get_settings_by_key()`.
+- Multi mode no longer falls back to the first configuration when no active/default configuration is set.
+- Multi mode now requires `configs` in `user_config`.
+
+### Added
+
+- Added `default` field for selecting the initial active configuration in multi mode.
+- Added strict validation for multi configuration structure.
+- Added `reset_user_config()` for clearing user configuration state.
+
+### Changed
+
+- Updated README and examples to use the v3 structured multi configuration format.
+- `load_user_configs(policy=...)` now validates policy values.
+
 ## [2.7.1] - 2026-06-10
 
 ### Changed

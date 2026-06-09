@@ -61,6 +61,9 @@ def load_user_configs(
         load_user_configs(configs)
         ```
     """
+    if policy not in {"replace", "merge"}:
+        raise ValueError("policy must be 'replace' or 'merge'")
+
     for module_name, user_config in user_configs.items():
         # Validate config type early
         if not isinstance(user_config, dict):
@@ -71,10 +74,14 @@ def load_user_configs(
 
         settings_manager = _resolve_settings_manager(module_name, manager_name)
 
+        from typing import cast
+
+        config_dict = cast(dict, user_config)
+
         if policy == "merge":
-            settings_manager.user_config = update_dict(settings_manager.user_config, user_config)
+            settings_manager.user_config = update_dict(settings_manager.user_config, config_dict)
         else:
-            settings_manager.user_config = user_config
+            settings_manager.user_config = config_dict
 
 
 def clear_user_configs(
@@ -102,7 +109,7 @@ def clear_user_configs(
     """
     for module_name in user_configs:
         settings_manager = _resolve_settings_manager(module_name, manager_name)
-        settings_manager.user_config = {}
+        settings_manager.reset_user_config()
 
 
 def _resolve_settings_manager(module_name: str, manager_name: str) -> SettingsManager:

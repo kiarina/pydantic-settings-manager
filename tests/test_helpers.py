@@ -149,8 +149,10 @@ def test_load_user_configs_multi_mode() -> None:
     try:
         configs = {
             "test_multi_module": {
-                "dev": {"name": "development", "value": 1},
-                "prod": {"name": "production", "value": 2},
+                "configs": {
+                    "dev": {"name": "development", "value": 1},
+                    "prod": {"name": "production", "value": 2},
+                }
             }
         }
 
@@ -299,10 +301,10 @@ def test_load_user_configs_policy_merge_multi_mode() -> None:
 
     try:
         load_user_configs(
-            {"test_policy_merge_multi": {"dev": {"name": "dev-app", "value": 1}}},
+            {"test_policy_merge_multi": {"configs": {"dev": {"name": "dev-app", "value": 1}}}},
         )
         load_user_configs(
-            {"test_policy_merge_multi": {"prod": {"name": "prod-app", "value": 2}}},
+            {"test_policy_merge_multi": {"configs": {"prod": {"name": "prod-app", "value": 2}}}},
             policy="merge",
         )
 
@@ -378,3 +380,9 @@ def test_clear_user_configs_custom_manager_name() -> None:
 
     finally:
         del sys.modules["test_clear_custom_module"]
+
+
+def test_load_user_configs_invalid_policy() -> None:
+    """Test error when policy is invalid"""
+    with pytest.raises(ValueError, match="policy must be 'replace' or 'merge'"):
+        load_user_configs({}, policy="invalid")  # type: ignore[arg-type]

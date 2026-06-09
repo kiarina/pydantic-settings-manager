@@ -145,7 +145,7 @@ def test_concurrent_multi_mode_operations() -> None:
     """Test concurrent operations in multi mode"""
     manager = SettingsManager(ThreadTestSettings, multi=True)
     manager.user_config = {
-        "map": {
+        "configs": {
             "dev": {"name": "development", "value": 1},
             "prod": {"name": "production", "value": 2},
             "test": {"name": "testing", "value": 3},
@@ -228,7 +228,7 @@ def test_concurrent_property_access() -> None:
     """Test concurrent access to various properties"""
     manager = SettingsManager(ThreadTestSettings, multi=True)
     manager.user_config = {
-        "map": {
+        "configs": {
             "dev": {"name": "development", "value": 1},
             "prod": {"name": "production", "value": 2},
         }
@@ -307,7 +307,7 @@ def test_deadlock_prevention() -> None:
     """Test that our locking strategy doesn't cause deadlocks"""
     manager = SettingsManager(ThreadTestSettings, multi=True)
     manager.user_config = {
-        "map": {
+        "configs": {
             "config1": {"name": "config1", "value": 1},
             "config2": {"name": "config2", "value": 2},
         }
