@@ -349,48 +349,76 @@ For applications that need different settings for different environments or cont
 # Enable multi-configuration mode
 manager = SettingsManager(AppSettings, multi=True)
 
-# Configure multiple environments (direct format)
+# Configure multiple environments (structured format)
 manager.user_config = {
-    "development": {
-        "app_name": "MyApp-Dev",
-        "debug": True,
-        "max_connections": 10
+    "default": "production",
+    "configs": {
+        "development": {
+            "app_name": "MyApp-Dev",
+            "debug": True,
+            "max_connections": 10
+        },
+        "production": {
+            "app_name": "MyApp-Prod",
+            "debug": False,
+            "max_connections": 1000
+        },
+        "testing": {
+            "app_name": "MyApp-Test",
+            "debug": True,
+            "max_connections": 5
+        }
     },
-    "production": {
-        "app_name": "MyApp-Prod",
-        "debug": False,
-        "max_connections": 1000
-    },
-    "testing": {
-        "app_name": "MyApp-Test",
-        "debug": True,
-        "max_connections": 5
+    "aliases": {
+        "dev": "development",
+        "prod": "production",
     }
 }
 
-# Alternative: structured format (useful when you want to set active_key in config)
-# manager.user_config = {
-#     "key": "production",  # Set active configuration
-#     "map": {
-#         "development": {"app_name": "MyApp-Dev", "debug": True, "max_connections": 10},
-#         "production": {"app_name": "MyApp-Prod", "debug": False, "max_connections": 1000},
-#         "testing": {"app_name": "MyApp-Test", "debug": True, "max_connections": 5}
-#     }
-# }
+# Settings returns 'production' because 'default' is set to 'production'
+settings = manager.settings
+print(f"Prod: {settings.app_name}, Debug: {settings.debug}")
 
-# Switch between configurations
+# Switch between configurations dynamically
 manager.active_key = "development"
 dev_settings = manager.settings
 print(f"Dev: {dev_settings.app_name}, Debug: {dev_settings.debug}")
 
-manager.active_key = "production"
-prod_settings = manager.settings
-print(f"Prod: {prod_settings.app_name}, Debug: {prod_settings.debug}")
+# Get specific settings by alias
+dev_settings = manager.get_settings("dev")
+print(f"Dev alias: {dev_settings.app_name}, Debug: {dev_settings.debug}")
 
 # Get all configurations
 all_settings = manager.all_settings
 for env, settings in all_settings.items():
     print(f"{env}: {settings.app_name}")
+```
+
+- `default` selects the configuration used by `manager.settings` when no `active_key` is set. It does not define inheritance or fallback behavior.
+- `configs` contains the named configurations. Each entry is passed to your Pydantic Settings class.
+- `aliases` maps alternative names to real configuration names. Aliases can point to other aliases, but circular aliases are rejected.
+
+## Migration Guide (v2.x to v3.0.0)
+
+If you were using the old `user_config` dictionary format (flat dictionary of environments), it is now deprecated in favor of the structured format above.
+
+**Old Format (Deprecated):**
+```python
+manager.user_config = {
+    "development": {...},
+    "production": {...}
+}
+```
+
+**New Format (v3.0+):**
+Simply move your configurations into the `configs` key:
+```python
+manager.user_config = {
+    "configs": {
+        "development": {...},
+        "production": {...}
+    }
+}
 ```
 
 ### Configuration Aliases
@@ -405,6 +433,7 @@ manager = SettingsManager(AppSettings, multi=True)
 
 # Define aliases with structured format
 manager.user_config = {
+    "default": "development",
     "aliases": {
         # Short names
         "dev": "development",
@@ -419,7 +448,7 @@ manager.user_config = {
         # Multi-level aliases (alias of alias)
         "d": "dev",  # d → dev → development
     },
-    "map": {
+    "configs": {
         "development": {
             "app_name": "MyApp-Dev",
             "debug": True,
@@ -454,6 +483,7 @@ data_settings = manager.get_settings("data_service")
 ```yaml
 # config/production.yaml
 settings.app:
+  default: production
   aliases:
     # Short names for convenience
     dev: development
@@ -464,7 +494,7 @@ settings.app:
     account_service: staging
     data_service: staging
 
-  map:
+  configs:
     development:
       app_name: "MyApp-Dev"
       debug: true
@@ -496,8 +526,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 manager = SettingsManager(AppSettings, multi=True)
 manager.user_config = {
-    "worker1": {"app_name": "Worker1", "max_connections": 10},
-    "worker2": {"app_name": "Worker2", "max_connections": 20}
+    "default": "worker1",
+    "configs": {
+        "worker1": {"app_name": "Worker1", "max_connections": 10},
+        "worker2": {"app_name": "Worker2", "max_connections": 20}
+    }
 }
 
 def worker_function(worker_id: int):
@@ -718,7 +751,66 @@ class SettingsManager(Generic[T]):
 - `get_settings(key: str | None = None) -> T` - Get settings by key or current active settings
 - `clear() -> None` - Clear cached settings
 - `set_cli_args(target: str, value: Any) -> None` - Set individual CLI argument
-- `get_settings_by_key(key: str | None) -> T` - **[Deprecated]** Use `get_settings()` instead (will be removed in v3.0.0)
+- `reset_user_config() -> None` - Reset user configuration and state to empty
+
+## Migration from v2 to v3
+
+### Direct format migration
+
+Before:
+```python
+manager.user_config = {
+    "development": {...},
+    "production": {...},
+}
+```
+
+After:
+```python
+manager.user_config = {
+    "default": "production",
+    "configs": {
+        "development": {...},
+        "production": {...},
+    },
+}
+```
+
+### Old structured format migration
+
+Before:
+```python
+manager.user_config = {
+    "key": "production",
+    "map": {
+        "development": {...},
+        "production": {...},
+    },
+}
+```
+
+After:
+```python
+manager.user_config = {
+    "default": "production",
+    "configs": {
+        "development": {...},
+        "production": {...},
+    },
+}
+```
+
+### `get_settings_by_key()` migration
+
+Before:
+```python
+settings = manager.get_settings_by_key("production")
+```
+
+After:
+```python
+settings = manager.get_settings("production")
+```
 
 ## License
 

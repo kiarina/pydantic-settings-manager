@@ -117,84 +117,88 @@ def test_get_settings_single_mode() -> None:
         manager.get_settings("some_key")
 
 
-def test_get_settings_multi_mode_with_key() -> None:
-    """Test get_settings with key in multi mode"""
+# Multi Mode Validation Tests (v3.0.0+)
+
+
+def test_multi_mode_requires_configs() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    with pytest.raises(ValueError, match="Multi configuration requires `configs`"):
+        manager.user_config = {
+            "default": "development",
+        }
+
+
+def test_old_key_map_format_rejected() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    with pytest.raises(ValueError, match="Invalid multi configuration keys"):
+        manager.user_config = {
+            "key": "production",
+            "map": {
+                "production": {"debug": False},
+            },
+        }
+
+
+def test_unknown_toplevel_key_rejected() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    with pytest.raises(ValueError, match="Invalid multi configuration keys"):
+        manager.user_config = {
+            "default": "production",
+            "configs": {
+                "production": {"debug": False},
+            },
+            "foo": "bar",
+        }
+
+
+def test_invalid_default_rejected() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    with pytest.raises(ValueError, match="Default configuration 'missing'"):
+        manager.user_config = {
+            "default": "missing",
+            "configs": {
+                "production": {"debug": False},
+            },
+        }
+
+
+def test_alias_target_must_exist() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    with pytest.raises(ValueError, match="Alias 'dev' resolved to 'development'"):
+        manager.user_config = {
+            "configs": {
+                "production": {"debug": False},
+            },
+            "aliases": {
+                "dev": "development",
+            },
+        }
+
+
+def test_circular_alias_setter() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    with pytest.raises(ValueError, match="Circular alias reference detected: a -> b -> a"):
+        manager.user_config = {
+            "configs": {
+                "production": {"debug": False},
+            },
+            "aliases": {
+                "a": "b",
+                "b": "a",
+            },
+        }
+
+
+def test_no_default_and_no_active_key_raises_on_settings() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
+        "configs": {
+            "development": {"debug": True},
+            "production": {"debug": False},
+        },
     }
-
-    # Get settings by specific key
-    dev_settings = manager.get_settings("dev")
-    assert dev_settings.name == "development"
-    assert dev_settings.value == 42
-
-    prod_settings = manager.get_settings("prod")
-    assert prod_settings.name == "production"
-    assert prod_settings.value == 100
-
-
-def test_get_settings_multi_mode_without_key() -> None:
-    """Test get_settings without key in multi mode"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
-    }
-
-    # Should return current active settings
-    manager.active_key = "dev"
-    settings = manager.get_settings()
-    assert settings.name == "development"
-    assert settings.value == 42
-
-    manager.active_key = "prod"
-    settings = manager.get_settings()
-    assert settings.name == "production"
-    assert settings.value == 100
-
-
-def test_get_settings_multi_mode_invalid_key() -> None:
-    """Test get_settings with invalid key in multi mode"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "development", "value": 42}}
-
-    # Should raise error for non-existent key
-    with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
-        manager.get_settings("nonexistent")
-
-
-def test_get_settings_multi_mode_none_key() -> None:
-    """Test get_settings with None key in multi mode"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
-    }
-
-    # None key should return current active settings
-    manager.active_key = "dev"
-    settings = manager.get_settings(None)
-    assert settings.name == "development"
-    assert settings.value == 42
-
-
-def test_get_settings_by_key_single_mode() -> None:
-    """Test get_settings_by_key in single mode (deprecated)"""
-    manager = SettingsManager(ExampleSettings)
-    manager.user_config = {"name": "test", "value": 42}
-
-    # Should raise deprecation warning and error in single mode
-    error_msg = "Getting settings by key is only available in multi mode"
-    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
-        with pytest.raises(ValueError, match=error_msg):
-            manager.get_settings_by_key(DEFAULT_KEY)
-
-    # Should also raise error for any other key
-    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
-        with pytest.raises(ValueError, match=error_msg):
-            manager.get_settings_by_key("nonexistent")
+    with pytest.raises(ValueError, match="No active or default configuration is set"):
+        _ = manager.settings
 
 
 # Multi Mode Tests
@@ -206,55 +210,23 @@ def test_init_multi_mode() -> None:
     assert manager.multi
     assert manager.active_key is None
 
-    # Should return default settings when no config is set
-    settings = manager.settings
-    assert settings.name == "default"
-    assert settings.value == 0
 
-
-def test_user_config_multi_mode_bulk() -> None:
-    """Test bulk user configuration in multi mode"""
+def test_user_config_multi_mode() -> None:
+    """Test user configuration in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "dev": {"name": "development", "value": 42, "debug": True},
-        "prod": {"name": "production", "value": 100, "debug": False},
+        "default": "dev",
+        "configs": {
+            "dev": {"name": "development", "value": 42, "debug": True},
+            "prod": {"name": "production", "value": 100, "debug": False},
+        },
     }
 
-    # Should use first configuration by default
+    # Should use default configuration
     settings = manager.settings
     assert settings.name == "development"
     assert settings.value == 42
     assert settings.debug is True
-
-
-def test_user_config_multi_mode_structured_format() -> None:
-    """Test structured format user configuration in multi mode"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "key": "prod",
-        "map": {
-            "dev": {"name": "development", "value": 42},
-            "prod": {"name": "production", "value": 100},
-        },
-    }
-
-    settings = manager.settings
-    assert settings.name == "production"
-    assert settings.value == 100
-
-
-def test_user_config_multi_mode_direct_format() -> None:
-    """Test direct format user configuration in multi mode"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
-    }
-
-    # Should use first configuration by default
-    settings = manager.settings
-    assert settings.name == "development"
-    assert settings.value == 42
 
 
 def test_active_key_property() -> None:
@@ -269,12 +241,45 @@ def test_active_key_property() -> None:
     assert manager.active_key == "prod"
 
 
+def test_active_key_overrides_default() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "default": "production",
+        "configs": {
+            "development": {"debug": True},
+            "production": {"debug": False},
+        },
+    }
+
+    assert manager.settings.debug is False
+    manager.active_key = "development"
+    assert manager.settings.debug is True
+
+
+def test_active_key_none_falls_back_to_default() -> None:
+    manager = SettingsManager(ExampleSettings, multi=True)
+    manager.user_config = {
+        "default": "production",
+        "configs": {
+            "development": {"debug": True},
+            "production": {"debug": False},
+        },
+    }
+
+    manager.active_key = "development"
+    manager.active_key = None
+    assert manager.settings.debug is False
+
+
 def test_cli_args_multi_mode() -> None:
     """Test CLI arguments in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
+        "default": "dev",
+        "configs": {
+            "dev": {"name": "development", "value": 42},
+            "prod": {"name": "production", "value": 100},
+        },
     }
     manager.active_key = "dev"
     manager.cli_args = {"value": 999, "debug": True}
@@ -288,7 +293,7 @@ def test_cli_args_multi_mode() -> None:
 def test_set_cli_args_method() -> None:
     """Test set_cli_args method"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "development", "value": 42}}
+    manager.user_config = {"configs": {"dev": {"name": "development", "value": 42}}}
 
     manager.set_cli_args("value", 999)
     manager.active_key = "dev"
@@ -300,7 +305,7 @@ def test_set_cli_args_method() -> None:
 def test_set_cli_args_nested() -> None:
     """Test set_cli_args with nested keys"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "development", "value": 42}}
+    manager.user_config = {"configs": {"dev": {"name": "development", "value": 42}}}
 
     # Test nested key setting
     manager.set_cli_args("nested.key", "test_value")
@@ -308,48 +313,19 @@ def test_set_cli_args_nested() -> None:
     assert cli_args["nested"]["key"] == "test_value"
 
 
-def test_get_settings_by_key_multi_mode() -> None:
-    """Test get_settings_by_key in multi mode (deprecated)"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
-    }
-
-    # Should show deprecation warning for all calls
-    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
-        dev_settings = manager.get_settings_by_key("dev")
-        assert dev_settings.name == "development"
-        assert dev_settings.value == 42
-
-    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
-        prod_settings = manager.get_settings_by_key("prod")
-        assert prod_settings.name == "production"
-        assert prod_settings.value == 100
-
-    # Should raise error for non-existent key
-    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
-        with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
-            manager.get_settings_by_key("nonexistent")
-
-    # Test with None key (should return current active settings)
-    manager.active_key = "dev"
-    with pytest.warns(DeprecationWarning, match="get_settings_by_key\\(\\) is deprecated"):
-        none_settings = manager.get_settings_by_key(None)
-        assert none_settings.name == "development"
-        assert none_settings.value == 42
-
-
 def test_all_settings_multi_mode() -> None:
     """Test all_settings property in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
+        "configs": {
+            "dev": {"name": "development", "value": 42},
+            "prod": {"name": "production", "value": 100},
+        },
+        "aliases": {"development": "dev"},
     }
 
     all_settings = manager.all_settings
-    assert len(all_settings) == 2
+    assert set(all_settings.keys()) == {"dev", "prod"}
     assert all_settings["dev"].name == "development"
     assert all_settings["dev"].value == 42
     assert all_settings["prod"].name == "production"
@@ -359,17 +335,17 @@ def test_all_settings_multi_mode() -> None:
 def test_invalid_active_key() -> None:
     """Test invalid active key"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "development", "value": 42}}
+    manager.user_config = {"configs": {"dev": {"name": "development", "value": 42}}}
     manager.active_key = "nonexistent"
 
-    with pytest.raises(ValueError, match="Active key 'nonexistent' does not exist"):
+    with pytest.raises(ValueError, match="Key 'nonexistent' does not exist"):
         _ = manager.settings
 
 
 def test_clear_multi_mode() -> None:
     """Test clear cache in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "initial", "value": 42}}
+    manager.user_config = {"configs": {"dev": {"name": "initial", "value": 42}}}
     manager.active_key = "dev"
 
     # Get settings to cache them
@@ -378,7 +354,8 @@ def test_clear_multi_mode() -> None:
 
     # Clear and modify config
     manager.clear()
-    manager.user_config = {"dev": {"name": "updated", "value": 100}}
+    manager.user_config = {"configs": {"dev": {"name": "updated", "value": 100}}}
+    manager.active_key = "dev"
 
     # Check that new settings are used
     updated_settings = manager.settings
@@ -392,14 +369,6 @@ def test_clear_multi_mode() -> None:
 def test_empty_config_single_mode() -> None:
     """Test empty configuration in single mode"""
     manager = SettingsManager(ExampleSettings)
-    settings = manager.settings
-    assert settings.name == "default"
-    assert settings.value == 0
-
-
-def test_empty_config_multi_mode() -> None:
-    """Test empty configuration in multi mode"""
-    manager = SettingsManager(ExampleSettings, multi=True)
     settings = manager.settings
     assert settings.name == "default"
     assert settings.value == 0
@@ -422,22 +391,30 @@ def test_user_config_getter_multi_mode() -> None:
     """Test user_config getter in multi mode"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
+        "default": "prod",
+        "configs": {
+            "dev": {"name": "development", "value": 42},
+            "prod": {"name": "production", "value": 100},
+        },
+        "aliases": {"production": "prod"},
     }
 
     config = manager.user_config
     expected = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
+        "default": "prod",
+        "configs": {
+            "dev": {"name": "development", "value": 42},
+            "prod": {"name": "production", "value": 100},
+        },
+        "aliases": {"production": "prod"},
     }
     assert config == expected
 
     # The implementation returns a deep copy,
     # so modifying nested dictionaries should not affect the internal state.
-    config["dev"]["name"] = "modified"
+    config["configs"]["dev"]["name"] = "modified"
     # The internal state should not be affected due to deep copy
-    assert manager.user_config["dev"]["name"] == "development"
+    assert manager.user_config["configs"]["dev"]["name"] == "development"
 
 
 def test_cli_args_getter() -> None:
@@ -491,7 +468,7 @@ def test_cache_invalidation_on_cli_args_change() -> None:
 def test_thread_safety_properties() -> None:
     """Test that properties return copies for thread safety"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "development", "value": 42}}
+    manager.user_config = {"configs": {"dev": {"name": "development", "value": 42}}}
     manager.cli_args = {"debug": True}
 
     # Get properties multiple times
@@ -522,7 +499,7 @@ def test_alias_basic() -> None:
             "dev": "development",
             "stg": "staging",
         },
-        "map": {
+        "configs": {
             "development": {"name": "dev_name", "value": 1},
             "staging": {"name": "stg_name", "value": 2},
         },
@@ -553,7 +530,7 @@ def test_alias_multi_level() -> None:
             "b": "c",
             "c": "target",
         },
-        "map": {
+        "configs": {
             "target": {"name": "final", "value": 42},
         },
     }
@@ -565,44 +542,12 @@ def test_alias_multi_level() -> None:
     assert manager.get_settings("target").name == "final"
 
 
-def test_alias_circular_reference() -> None:
-    """Test circular alias reference detection"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "aliases": {
-            "a": "b",
-            "b": "c",
-            "c": "a",  # Circular reference
-        },
-        "map": {"target": {"name": "test", "value": 1}},
-    }
-
-    # Should raise error when trying to resolve circular alias
-    with pytest.raises(ValueError, match="Circular alias reference detected"):
-        manager.get_settings("a")
-
-
-def test_alias_nonexistent_target() -> None:
-    """Test alias pointing to non-existent target"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "aliases": {"dev": "nonexistent"},
-        "map": {"staging": {"name": "stg", "value": 1}},
-    }
-
-    # Should show both original and resolved key in error
-    with pytest.raises(
-        ValueError, match="Key 'dev' \\(resolved to 'nonexistent'\\) does not exist"
-    ):
-        manager.get_settings("dev")
-
-
 def test_alias_with_active_key() -> None:
     """Test alias with active_key property"""
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "aliases": {"dev": "development"},
-        "map": {
+        "configs": {
             "development": {"name": "dev_name", "value": 1},
             "production": {"name": "prod_name", "value": 2},
         },
@@ -627,106 +572,37 @@ def test_alias_with_active_key() -> None:
     assert settings3.value == 1
 
 
-def test_alias_structured_format() -> None:
-    """Test alias with structured format configuration"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "key": "dev",
-        "aliases": {"dev": "development"},
-        "map": {
-            "development": {"name": "dev_name", "value": 1},
-        },
-    }
-
-    # Active key is set to "dev" (alias)
-    assert manager.active_key == "dev"
-
-    # Get settings via alias
-    settings = manager.get_settings("dev")
-    assert settings.name == "dev_name"
-
-
-def test_alias_active_key_circular_reference() -> None:
-    """Test circular alias reference with active_key"""
-    manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "aliases": {
-            "a": "b",
-            "b": "a",  # Circular reference
-        },
-        "map": {"target": {"name": "test", "value": 1}},
-    }
-
-    # Set active_key to circular alias
-    manager.active_key = "a"
-
-    # Should raise error when accessing .settings
-    with pytest.raises(ValueError, match="Circular alias reference detected"):
-        _ = manager.settings
-
-
 def test_alias_active_key_nonexistent_target() -> None:
     """Test active_key with alias pointing to non-existent target"""
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {
-        "aliases": {"dev": "nonexistent"},
-        "map": {"staging": {"name": "stg", "value": 1}},
-    }
-
-    # Set active_key to alias with non-existent target
-    manager.active_key = "dev"
-
-    # Should show both original and resolved key in error
-    with pytest.raises(
-        ValueError, match="Active key 'dev' \\(resolved to 'nonexistent'\\) does not exist"
-    ):
-        _ = manager.settings
+    # The setter validates this now, so we need to bypass or test setter
+    with pytest.raises(ValueError, match="Alias 'dev' resolved to 'nonexistent'"):
+        manager.user_config = {
+            "aliases": {"dev": "nonexistent"},
+            "configs": {"staging": {"name": "stg", "value": 1}},
+        }
 
 
-# Compatibility Tests
-
-
-def test_single_mode_compatibility() -> None:
-    """Test that single mode works like SingleSettingsManager"""
-    manager = SettingsManager(ExampleSettings)
-
-    # Should work exactly like SingleSettingsManager
-    manager.user_config = {"name": "from_file", "value": 42}
-    manager.cli_args = {"value": 100}
-
-    settings = manager.settings
-    assert settings.name == "from_file"
-    assert settings.value == 100
-
-
-def test_multi_mode_compatibility() -> None:
-    """Test that multi mode works like MappedSettingsManager"""
+def test_default_can_be_alias() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
-
-    # Should work like MappedSettingsManager
     manager.user_config = {
-        "dev": {"name": "development", "value": 42},
-        "prod": {"name": "production", "value": 100},
+        "default": "prod",
+        "configs": {
+            "production": {"debug": False},
+        },
+        "aliases": {
+            "prod": "production",
+        },
     }
-
-    # Test switching between configurations
-    manager.active_key = "dev"
-    dev_settings = manager.settings
-    assert dev_settings.name == "development"
-
-    manager.active_key = "prod"
-    prod_settings = manager.settings
-    assert prod_settings.name == "production"
+    assert manager.settings.debug is False
 
 
-def test_set_cli_args_compatibility() -> None:
-    """Test set_cli_args method for compatibility"""
+def test_get_settings_explicit_key_works_without_default() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
-    manager.user_config = {"dev": {"name": "development", "value": 42}}
-
-    # This method should work for setting individual CLI args
-    manager.set_cli_args("debug", True)
-    manager.active_key = "dev"
-
-    settings = manager.settings
-    assert settings.debug is True
+    manager.user_config = {
+        "configs": {
+            "development": {"debug": True},
+            "production": {"debug": False},
+        },
+    }
+    assert manager.get_settings("development").debug is True

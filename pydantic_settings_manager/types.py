@@ -1,4 +1,4 @@
-from typing import Any, Literal
+from typing import Any, Literal, NotRequired, TypedDict
 
 type SettingsKey = str
 """
@@ -14,11 +14,27 @@ Type alias for module names used in load_user_configs.
 Represents a fully qualified module name (e.g., "myapp.settings", "myapp.auth.settings").
 """
 
-type UserConfig = dict[str, Any]
-"""
-Type alias for user configuration dictionaries.
 
-Represents a configuration dictionary to be passed to a SettingsManager's user_config property.
+class MultiUserConfig(TypedDict):
+    """
+    Type definition for multi-configuration format (v3.0.0).
+    """
+
+    configs: dict[str, dict[str, Any]]
+    default: NotRequired[str | None]
+    aliases: NotRequired[dict[str, str]]
+
+
+type SingleUserConfig = dict[str, Any]
+"""
+Type alias for single configuration dictionary.
+"""
+
+type UserConfig = SingleUserConfig | MultiUserConfig
+"""
+Type alias for user configuration.
+
+Can be a direct dictionary for single mode, or a structured dictionary for multi mode.
 """
 
 type UserConfigs = dict[ModuleName, UserConfig]
