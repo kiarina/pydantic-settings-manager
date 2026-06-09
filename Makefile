@@ -1,6 +1,15 @@
 .PHONY: format lint test clean build publish upgrade
 .DEFAULT_GOAL := build
 
+init:
+	mise run setup
+
+update:
+	uv sync --all-extras --all-groups
+
+upgrade:
+	mise run upgrade --sync
+
 format:
 	uv run ruff check --fix .
 
