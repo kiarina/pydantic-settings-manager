@@ -189,7 +189,7 @@ def test_circular_alias_setter() -> None:
         }
 
 
-def test_no_default_and_no_active_key_raises_on_settings() -> None:
+def test_no_default_and_no_active_key_returns_default_settings() -> None:
     manager = SettingsManager(ExampleSettings, multi=True)
     manager.user_config = {
         "configs": {
@@ -197,11 +197,10 @@ def test_no_default_and_no_active_key_raises_on_settings() -> None:
             "production": {"debug": False},
         },
     }
-    with pytest.raises(
-        ValueError,
-        match="No active or default configuration is set, and fallback key 'default'",
-    ):
-        _ = manager.settings
+    # Should automatically fall back to generated DEFAULT_KEY
+    settings = manager.settings
+    assert settings.name == "default"
+    assert settings.debug is False
 
 
 def test_no_default_falls_back_to_default_key() -> None:
@@ -340,7 +339,7 @@ def test_all_settings_multi_mode() -> None:
     }
 
     all_settings = manager.all_settings
-    assert set(all_settings.keys()) == {"dev", "prod"}
+    assert set(all_settings.keys()) == {"default", "dev", "prod"}
     assert all_settings["dev"].name == "development"
     assert all_settings["dev"].value == 42
     assert all_settings["prod"].name == "production"

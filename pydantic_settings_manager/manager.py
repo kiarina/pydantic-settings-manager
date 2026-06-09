@@ -150,17 +150,6 @@ class SettingsManager[T: BaseSettings]:
             resolved_key = self._resolve_alias(target_key)
 
             if resolved_key not in self._cache:
-                if (
-                    self._active_key is None
-                    and self._default_key is None
-                    and target_key == DEFAULT_KEY
-                ):
-                    raise ValueError(
-                        "No active or default configuration is set, "
-                        f"and fallback key '{DEFAULT_KEY}' does not exist in settings map. "
-                        "Set `manager.active_key`, add `default` to user_config, "
-                        "or use 'default' as a config key."
-                    )
                 # Show both original and resolved key in error message if different
                 if target_key != resolved_key:
                     raise ValueError(
@@ -479,6 +468,9 @@ class SettingsManager[T: BaseSettings]:
             for key, user_config in self._user_config.items():
                 if isinstance(user_config, dict):
                     self._cache[key] = self.settings_cls(**update_dict(user_config, self._cli_args))
+
+            if DEFAULT_KEY not in self._cache:
+                self._cache[DEFAULT_KEY] = self.settings_cls(**self._cli_args)
 
         else:
             self._cache = {

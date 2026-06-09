@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.2.0] - 2026-06-10
+
+### Added
+
+- `multi=True` mode now automatically falls back to `DEFAULT_KEY` (`"default"`) when no active or default configuration is explicitly set.
+
+### Changed
+
+- Removed unreachable code in `SettingsManager.settings` that would raise an error when `DEFAULT_KEY` wasn't found in the cache.
+
 ## [3.1.0] - 2026-06-10
 
 ### Added
