@@ -394,7 +394,7 @@ for env, settings in all_settings.items():
     print(f"{env}: {settings.app_name}")
 ```
 
-- `default` selects the configuration used by `manager.settings` when no `active_key` is set. It does not define inheritance or fallback behavior.
+- `default` selects the configuration used by `manager.settings` when no `active_key` is set. If neither `active_key` nor `default` is explicitly configured, `manager.settings` will automatically fall back to using the `"default"` configuration key.
 - `configs` contains the named configurations. Each entry is passed to your Pydantic Settings class.
 - `aliases` maps alternative names to real configuration names. Aliases can point to other aliases, but circular aliases are rejected.
 
