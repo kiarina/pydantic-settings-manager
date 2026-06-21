@@ -34,6 +34,7 @@
     - [Project Structure](#project-structure)
     - [Quick Example](#quick-example)
     - [Configuration File Structure](#configuration-file-structure)
+    - [User Configuration Templates](#user-configuration-templates)
     - [Custom Manager Names](#custom-manager-names)
     - [Frequently Asked Questions](#frequently-asked-questions)
   - [Multiple Configurations](#multiple-configurations)
@@ -54,6 +55,7 @@
       - [Parameters](#parameters)
       - [Properties](#properties)
       - [Methods](#methods)
+    - [Helper Functions](#helper-functions)
   - [Migration from v2 to v3](#migration-from-v2-to-v3)
     - [Direct format migration](#direct-format-migration)
     - [Old structured format migration](#old-structured-format-migration)
@@ -282,6 +284,36 @@ modules.billing.settings:
   currency: "USD"
   stripe_api_key: "${STRIPE_API_KEY}"
 ```
+
+### User Configuration Templates
+
+`generate_user_configs_yaml()` を使うと、既存の settings manager から `user_settings.yaml` の雛形を生成できます。
+
+```python
+from pydantic_settings_manager import generate_user_configs_yaml
+
+yaml_text = generate_user_configs_yaml(
+    [
+        "settings.app",
+        "modules.auth.settings",
+        "modules.billing.settings",
+    ]
+)
+```
+
+デフォルト値を持つフィールドはコメントアウトされ、必須フィールドは有効な状態で出力されます。
+
+```yaml
+# Settings for the application
+settings.app:
+  # Application Name
+  # app_name: MyApp
+  #--------------------------------------------------
+  # Secret Key
+  secret_key:
+```
+
+private な settings module segment は、生成される設定 key から省略されます。たとえば、`hoge.fuga._settings` と `hoge.fuga._fire.settings` はどちらも `hoge.fuga` を生成します。
 
 ### Custom Manager Names
 
@@ -751,6 +783,12 @@ class SettingsManager(Generic[T]):
 - `clear() -> None` - キャッシュ済み設定をクリアする
 - `set_cli_args(target: str, value: Any) -> None` - 個別の CLI 引数を設定する
 - `reset_user_config() -> None` - ユーザー設定と状態を空にリセットする
+
+### Helper Functions
+
+- `load_user_configs(user_configs, *, manager_name="settings_manager", policy="replace") -> None` - settings manager にユーザー設定を読み込む
+- `clear_user_configs(user_configs, *, manager_name="settings_manager") -> None` - settings manager からユーザー設定をクリアする
+- `generate_user_configs_yaml(import_paths, *, manager_name="settings_manager") -> str` - settings manager から YAML の雛形を生成する
 
 ## Migration from v2 to v3
 

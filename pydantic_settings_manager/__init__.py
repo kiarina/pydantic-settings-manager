@@ -23,7 +23,7 @@ from importlib.metadata import version
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from .helpers import clear_user_configs, load_user_configs
+from .helpers import clear_user_configs, generate_user_configs_yaml, load_user_configs
 from .manager import DEFAULT_KEY, SettingsManager
 from .types import ConfigPolicy, ModuleName, SettingsKey, UserConfig, UserConfigs
 from .utils import update_dict
@@ -41,6 +41,7 @@ __all__ = [
     "UserConfig",
     "UserConfigs",
     "clear_user_configs",
+    "generate_user_configs_yaml",
     "load_user_configs",
     "update_dict",
 ]

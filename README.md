@@ -34,6 +34,7 @@ A modern, thread-safe library for managing Pydantic settings with support for mu
     - [Project Structure](#project-structure)
     - [Quick Example](#quick-example)
     - [Configuration File Structure](#configuration-file-structure)
+    - [User Configuration Templates](#user-configuration-templates)
     - [Custom Manager Names](#custom-manager-names)
     - [Frequently Asked Questions](#frequently-asked-questions)
   - [Multiple Configurations](#multiple-configurations)
@@ -54,6 +55,7 @@ A modern, thread-safe library for managing Pydantic settings with support for mu
       - [Parameters](#parameters)
       - [Properties](#properties)
       - [Methods](#methods)
+    - [Helper Functions](#helper-functions)
   - [Migration from v2 to v3](#migration-from-v2-to-v3)
     - [Direct format migration](#direct-format-migration)
     - [Old structured format migration](#old-structured-format-migration)
@@ -281,6 +283,36 @@ modules.billing.settings:
   currency: "USD"
   stripe_api_key: "${STRIPE_API_KEY}"
 ```
+
+### User Configuration Templates
+
+Use `generate_user_configs_yaml()` to generate a starter `user_settings.yaml` from your existing settings managers:
+
+```python
+from pydantic_settings_manager import generate_user_configs_yaml
+
+yaml_text = generate_user_configs_yaml(
+    [
+        "settings.app",
+        "modules.auth.settings",
+        "modules.billing.settings",
+    ]
+)
+```
+
+Fields with defaults are commented out, while required fields are left active:
+
+```yaml
+# Settings for the application
+settings.app:
+  # Application Name
+  # app_name: MyApp
+  #--------------------------------------------------
+  # Secret Key
+  secret_key:
+```
+
+Private settings module segments are omitted from the generated configuration key. For example, `hoge.fuga._settings` and `hoge.fuga._fire.settings` both generate `hoge.fuga`.
 
 ### Custom Manager Names
 
@@ -750,6 +782,12 @@ class SettingsManager(Generic[T]):
 - `clear() -> None` - Clear cached settings
 - `set_cli_args(target: str, value: Any) -> None` - Set individual CLI argument
 - `reset_user_config() -> None` - Reset user configuration and state to empty
+
+### Helper Functions
+
+- `load_user_configs(user_configs, *, manager_name="settings_manager", policy="replace") -> None` - Load user configurations into settings managers
+- `clear_user_configs(user_configs, *, manager_name="settings_manager") -> None` - Clear user configurations from settings managers
+- `generate_user_configs_yaml(import_paths, *, manager_name="settings_manager") -> str` - Generate a starter YAML template from settings managers
 
 ## Migration from v2 to v3
 

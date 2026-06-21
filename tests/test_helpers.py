@@ -7,9 +7,15 @@ from types import ModuleType
 from typing import Any
 
 import pytest
+from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings
 
-from pydantic_settings_manager import SettingsManager, clear_user_configs, load_user_configs
+from pydantic_settings_manager import (
+    SettingsManager,
+    clear_user_configs,
+    generate_user_configs_yaml,
+    load_user_configs,
+)
 
 
 class ExampleSettings(BaseSettings):
@@ -17,6 +23,143 @@ class ExampleSettings(BaseSettings):
 
     name: str = "default"
     value: int = 0
+
+
+def _register_module_path(module_name: str, module: ModuleType) -> list[str]:
+    registered = []
+    parts = module_name.split(".")
+
+    for index in range(1, len(parts)):
+        package_name = ".".join(parts[:index])
+        if package_name not in sys.modules:
+            package = ModuleType(package_name)
+            package.__path__ = []
+            sys.modules[package_name] = package
+            registered.append(package_name)
+
+    sys.modules[module_name] = module
+    registered.append(module_name)
+    return registered
+
+
+def _cleanup_modules(module_names: list[str]) -> None:
+    for module_name in reversed(module_names):
+        sys.modules.pop(module_name, None)
+
+
+class TemplateItem(BaseModel):
+    """Item model"""
+
+    name: str = Field(
+        ...,
+        title="Name",
+        description="Name of the item",
+    )
+    value: int = Field(
+        0,
+        title="Value",
+        description="Value of the item",
+    )
+
+
+class TemplateSettings(BaseSettings):
+    """Settings for HogeFuga service"""
+
+    hello_count: int = Field(
+        1,
+        title="Hello Count",
+        description="Number of times to say hello",
+    )
+    api_key: str = Field(
+        ...,
+        title="API Key",
+        description="API key for accessing the service",
+    )
+    metadata: dict[str, str] = Field(
+        default_factory=dict,
+        title="Metadata",
+        description="Additional metadata for the service",
+    )
+    hoge_items: list[TemplateItem] = Field(
+        default_factory=lambda: [
+            TemplateItem(name="default", value=0),
+            TemplateItem(name="example", value=1),
+        ],
+        title="Hoge Items",
+        description="List of Hoge items",
+    )
+
+
+def test_generate_user_configs_yaml_template() -> None:
+    """Test generating a user config YAML template from settings metadata"""
+    module = ModuleType("hoge.fuga._settings")
+    module.settings_manager = SettingsManager(TemplateSettings)  # type: ignore[attr-defined]
+    registered_modules = _register_module_path("hoge.fuga._settings", module)
+
+    try:
+        yaml = generate_user_configs_yaml(["hoge.fuga._settings"])
+
+        assert yaml == "\n".join(
+            [
+                "# Settings for HogeFuga service",
+                "hoge.fuga:",
+                "  # Hello Count",
+                "  # Number of times to say hello",
+                "  # hello_count: 1",
+                "  #--------------------------------------------------",
+                "  # API Key",
+                "  # API key for accessing the service",
+                "  api_key:",
+                "  #--------------------------------------------------",
+                "  # Metadata",
+                "  # Additional metadata for the service",
+                "  # metadata: {}",
+                "  #--------------------------------------------------",
+                "  # Hoge Items",
+                "  # List of Hoge items",
+                "  # hoge_items:",
+                "  #   - name: default",
+                "  #     value: 0",
+                "  #   - name: example",
+                "  #     value: 1",
+            ]
+        )
+
+    finally:
+        _cleanup_modules(registered_modules)
+
+
+def test_generate_user_configs_yaml_module_key_rules_and_order() -> None:
+    """Test import path conversion and ordering for generated templates"""
+    first = ModuleType("hoge.fuga.settings")
+    first.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]
+    second = ModuleType("hoge.fuga._fire.settings")
+    second.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]
+
+    registered_modules = [
+        *_register_module_path("hoge.fuga.settings", first),
+        *_register_module_path("hoge.fuga._fire.settings", second),
+    ]
+
+    try:
+        yaml = generate_user_configs_yaml(["hoge.fuga.settings", "hoge.fuga._fire.settings"])
+
+        assert yaml.splitlines() == [
+            "# Example settings class for testing",
+            "hoge.fuga.settings:",
+            "  # name: default",
+            "  #--------------------------------------------------",
+            "  # value: 0",
+            "",
+            "# Example settings class for testing",
+            "hoge.fuga:",
+            "  # name: default",
+            "  #--------------------------------------------------",
+            "  # value: 0",
+        ]
+
+    finally:
+        _cleanup_modules(registered_modules)
 
 
 def test_load_user_configs_success() -> None:
@@ -34,7 +177,7 @@ def test_load_user_configs_success() -> None:
 
     try:
         # Load configs
-        configs = {
+        configs: dict[str, Any] = {
             "test_module1": {"name": "module1", "value": 1},
             "test_module2": {"name": "module2", "value": 2},
         }
@@ -61,7 +204,7 @@ def test_load_user_configs_custom_manager_name() -> None:
     sys.modules["test_custom_module"] = module
 
     try:
-        configs = {"test_custom_module": {"name": "custom", "value": 42}}
+        configs: dict[str, Any] = {"test_custom_module": {"name": "custom", "value": 42}}
 
         load_user_configs(configs, manager_name="custom_manager")
 
@@ -74,7 +217,7 @@ def test_load_user_configs_custom_manager_name() -> None:
 
 def test_load_user_configs_module_not_found() -> None:
     """Test error when module is not found"""
-    configs = {"nonexistent_module": {"name": "test"}}
+    configs: dict[str, Any] = {"nonexistent_module": {"name": "test"}}
 
     with pytest.raises(ModuleNotFoundError, match="Module not found: nonexistent_module"):
         load_user_configs(configs)
@@ -86,7 +229,7 @@ def test_load_user_configs_missing_manager_attribute() -> None:
     sys.modules["test_no_manager"] = module
 
     try:
-        configs = {"test_no_manager": {"name": "test"}}
+        configs: dict[str, Any] = {"test_no_manager": {"name": "test"}}
 
         with pytest.raises(
             AttributeError,
@@ -106,7 +249,7 @@ def test_load_user_configs_wrong_manager_type() -> None:
     sys.modules["test_wrong_type"] = module
 
     try:
-        configs = {"test_wrong_type": {"name": "test"}}
+        configs: dict[str, Any] = {"test_wrong_type": {"name": "test"}}
 
         with pytest.raises(
             TypeError,
@@ -147,7 +290,7 @@ def test_load_user_configs_multi_mode() -> None:
     sys.modules["test_multi_module"] = module
 
     try:
-        configs = {
+        configs: dict[str, Any] = {
             "test_multi_module": {
                 "configs": {
                     "dev": {"name": "development", "value": 1},
@@ -186,7 +329,7 @@ def test_load_user_configs_partial_failure() -> None:
     sys.modules["test_partial1"] = module1
 
     try:
-        configs = {
+        configs: dict[str, Any] = {
             "test_partial1": {"name": "first", "value": 1},
             "nonexistent_module": {"name": "second", "value": 2},
         }
