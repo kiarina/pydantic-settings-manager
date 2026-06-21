@@ -2,6 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from .._constants.default_key import DEFAULT_KEY
 from .._operations.resolve_settings_manager import resolve_settings_manager
 
 
@@ -29,27 +30,54 @@ def _generate_user_config_yaml_block(import_path: str, *, manager_name: str) -> 
             lines.append(f"# {doc_line}" if doc_line else "#")
 
     lines.append(f"{_module_config_key(import_path)}:")
+    if settings_manager.multi:
+        lines.append(f"  # default: {DEFAULT_KEY}")
+        lines.append("  configs:")
+        lines.append(f"    {DEFAULT_KEY}:")
+        lines.extend(_generate_settings_fields_yaml_lines(settings_cls, indent=6))
+        lines.append("  # aliases: {}")
+        return "\n".join(lines)
+
+    lines.extend(_generate_settings_fields_yaml_lines(settings_cls, indent=2))
+    return "\n".join(lines)
+
+
+def _generate_settings_fields_yaml_lines(
+    settings_cls: type[BaseModel],
+    *,
+    indent: int,
+) -> list[str]:
+    comment_prefix = " " * indent
+    separator = f"{comment_prefix}#--------------------------------------------------"
+    lines: list[str] = []
 
     fields = list(settings_cls.model_fields.items())
     for index, (field_name, field_info) in enumerate(fields):
         if index:
-            lines.append("  #--------------------------------------------------")
+            lines.append(separator)
 
         if field_info.title:
-            lines.append(f"  # {field_info.title}")
+            lines.append(f"{comment_prefix}# {field_info.title}")
         if field_info.description:
             for description_line in _clean_doc_lines(field_info.description):
-                lines.append(f"  # {description_line}" if description_line else "  #")
+                if description_line:
+                    lines.append(f"{comment_prefix}# {description_line}")
+                else:
+                    lines.append(f"{comment_prefix}#")
 
         if field_info.is_required():
-            lines.append(f"  {field_name}:")
+            lines.append(f"{comment_prefix}{field_name}:")
             continue
 
         default_value = field_info.get_default(call_default_factory=True)
-        rendered_lines = _render_yaml_key_value(field_name, _to_yaml_value(default_value), indent=2)
-        lines.extend(f"  # {line[2:]}" for line in rendered_lines)
+        rendered_lines = _render_yaml_key_value(
+            field_name,
+            _to_yaml_value(default_value),
+            indent=indent,
+        )
+        lines.extend(f"{comment_prefix}# {line[indent:]}" for line in rendered_lines)
 
-    return "\n".join(lines)
+    return lines
 
 
 def _module_config_key(import_path: str) -> str:

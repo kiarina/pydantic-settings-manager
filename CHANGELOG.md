@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Refactored the internal package and test layout to follow Crystal Architecture while keeping the top-level public API stable.
 - Moved shared manager resolution into `_operations/resolve_settings_manager.py` and removed non-public package re-export modules.
+- Updated `generate_user_configs_yaml()` to emit the structured multi-configuration format for `SettingsManager(..., multi=True)`.
 
 ## [3.2.0] - 2026-06-10
 

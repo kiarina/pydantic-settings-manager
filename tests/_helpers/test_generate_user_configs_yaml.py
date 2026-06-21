@@ -117,6 +117,48 @@ def test_generate_user_configs_yaml_template() -> None:
         cleanup_modules(registered_modules)
 
 
+def test_generate_user_configs_yaml_template_for_multi_mode() -> None:
+    module = ModuleType("hoge.multi._settings")
+    module.settings_manager = SettingsManager(TemplateSettings, multi=True)  # type: ignore[attr-defined]
+    registered_modules = register_module_path("hoge.multi._settings", module)
+
+    try:
+        yaml = generate_user_configs_yaml(["hoge.multi._settings"])
+
+        assert yaml == "\n".join(
+            [
+                "# Settings for HogeFuga service.",
+                "hoge.multi:",
+                "  # default: default",
+                "  configs:",
+                "    default:",
+                "      # Hello Count",
+                "      # Number of times to say hello",
+                "      # hello_count: 1",
+                "      #--------------------------------------------------",
+                "      # API Key",
+                "      # API key for accessing the service",
+                "      api_key:",
+                "      #--------------------------------------------------",
+                "      # Metadata",
+                "      # Additional metadata for the service",
+                "      # metadata: {}",
+                "      #--------------------------------------------------",
+                "      # Hoge Items",
+                "      # List of Hoge items",
+                "      # hoge_items:",
+                "      #   - name: default",
+                "      #     value: 0",
+                "      #   - name: example",
+                "      #     value: 1",
+                "  # aliases: {}",
+            ]
+        )
+
+    finally:
+        cleanup_modules(registered_modules)
+
+
 def test_generate_user_configs_yaml_module_key_rules_and_order() -> None:
     first = ModuleType("hoge.fuga.settings")
     first.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]

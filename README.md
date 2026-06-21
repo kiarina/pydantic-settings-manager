@@ -322,6 +322,22 @@ settings.app:
   secret_key:
 ```
 
+For `SettingsManager(..., multi=True)`, the generated template uses the structured multi-configuration format:
+
+```yaml
+# Settings for the application
+settings.app:
+  # default: default
+  configs:
+    default:
+      # Application Name
+      # app_name: MyApp
+      #--------------------------------------------------
+      # Secret Key
+      secret_key:
+  # aliases: {}
+```
+
 Private settings module segments are omitted from the generated configuration key. For example, `hoge.fuga._settings` and `hoge.fuga._fire.settings` both generate `hoge.fuga`.
 
 ### Custom Manager Names

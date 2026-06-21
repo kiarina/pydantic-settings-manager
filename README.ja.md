@@ -323,6 +323,22 @@ settings.app:
   secret_key:
 ```
 
+`SettingsManager(..., multi=True)` の場合、生成される雛形は構造化された multi configuration 形式になります。
+
+```yaml
+# Settings for the application
+settings.app:
+  # default: default
+  configs:
+    default:
+      # Application Name
+      # app_name: MyApp
+      #--------------------------------------------------
+      # Secret Key
+      secret_key:
+  # aliases: {}
+```
+
 private な settings module segment は、生成される設定 key から省略されます。たとえば、`hoge.fuga._settings` と `hoge.fuga._fire.settings` はどちらも `hoge.fuga` を生成します。
 
 ### Custom Manager Names
