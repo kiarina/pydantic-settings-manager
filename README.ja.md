@@ -1,6 +1,6 @@
 # pydantic-settings-manager
 
-Languages: [English](README.md) | [日本語](README.ja.md)
+言語: [English](README.md) | [日本語](README.ja.md)
 
 [![PyPI](https://img.shields.io/pypi/v/pydantic-settings-manager.svg)](https://pypi.org/project/pydantic-settings-manager/)
 [![Python](https://img.shields.io/pypi/pyversions/pydantic-settings-manager.svg)](https://pypi.org/project/pydantic-settings-manager/)
@@ -8,17 +8,17 @@ Languages: [English](README.md) | [日本語](README.ja.md)
 [![Codecov](https://codecov.io/gh/kiarina/pydantic-settings-manager/branch/main/graph/badge.svg)](https://codecov.io/gh/kiarina/pydantic-settings-manager)
 [![License](https://img.shields.io/pypi/l/pydantic-settings-manager.svg)](https://github.com/kiarina/pydantic-settings-manager/blob/main/LICENSE)
 
-A modern, thread-safe library for managing Pydantic settings with support for multiple configurations and runtime overrides.
+複数の設定と実行時の上書きに対応した、Pydantic settings 向けのモダンでスレッドセーフな管理ライブラリです。
 
 ## Features
 
-- **Bootstrap Pattern**: Centralized configuration loading for multi-module applications
-- **Unified API**: Single `SettingsManager` class handles both simple and complex configurations
-- **Thread-safe**: Built-in thread safety for concurrent applications
-- **Type-safe**: Full type hints and Pydantic validation
-- **Flexible**: Support for single settings or multiple named configurations
-- **Runtime overrides**: Command-line arguments and dynamic configuration changes
-- **Easy migration**: Simple upgrade path from configuration files and environment variables
+- **Bootstrap パターン**: 複数モジュールのアプリケーション向けに設定読み込みを一元化
+- **統一 API**: 単一の `SettingsManager` クラスで、シンプルな設定と複雑な設定の両方を扱える
+- **スレッドセーフ**: 並行実行されるアプリケーション向けのスレッド安全性を内蔵
+- **型安全**: 完全な型ヒントと Pydantic バリデーション
+- **柔軟**: 単一設定にも、名前付きの複数設定にも対応
+- **実行時の上書き**: コマンドライン引数や動的な設定変更に対応
+- **移行しやすい**: 設定ファイルや環境変数からの移行が簡単
 
 ## Table of Contents
 
@@ -76,23 +76,23 @@ pip install pydantic-settings-manager
 from pydantic_settings import BaseSettings
 from pydantic_settings_manager import SettingsManager
 
-# 1. Define your settings
+# 1. 設定を定義する
 class AppSettings(BaseSettings):
     app_name: str = "MyApp"
     debug: bool = False
     max_connections: int = 100
 
-# 2. Create a settings manager
+# 2. settings manager を作成する
 manager = SettingsManager(AppSettings)
 
-# 3. Load configuration
+# 3. 設定を読み込む
 manager.user_config = {
     "app_name": "ProductionApp",
     "debug": False,
     "max_connections": 500
 }
 
-# 4. Use your settings
+# 4. 設定を使う
 settings = manager.settings
 print(f"App: {settings.app_name}")  # Output: App: ProductionApp
 ```
@@ -100,7 +100,7 @@ print(f"App: {settings.app_name}")  # Output: App: ProductionApp
 ### Runtime Overrides
 
 ```python
-# Override settings at runtime (e.g., from command line)
+# 実行時に設定を上書きする（例: コマンドラインから）
 manager.cli_args = {"debug": True, "max_connections": 50}
 
 settings = manager.settings
@@ -110,14 +110,14 @@ print(f"Connections: {settings.max_connections}")  # Output: Connections: 50
 
 ## Bootstrap Pattern (Recommended for Production)
 
-**For multi-module applications, use the bootstrap pattern with `load_user_configs()`.** This is the recommended approach for production applications.
+**複数モジュールのアプリケーションでは、`load_user_configs()` を使った bootstrap パターンを使ってください。** 本番アプリケーションではこの方法を推奨します。
 
 ### Why Bootstrap Pattern?
 
-- **Centralized Configuration**: Load all module settings from a single configuration file
-- **Automatic Discovery**: No need to manually import and configure each module
-- **Environment Management**: Easy switching between development, staging, and production
-- **Clean Separation**: Configuration files separate from application code
+- **設定の一元化**: すべてのモジュール設定を 1 つの設定ファイルから読み込める
+- **自動検出**: 各モジュールを手動で import して設定する必要がない
+- **環境管理**: development、staging、production の切り替えが簡単
+- **関心の分離**: 設定ファイルをアプリケーションコードから分離できる
 
 ### Project Structure
 
@@ -136,17 +136,17 @@ your_project/
 │       ├── settings.py           # billing_settings_manager
 │       └── service.py
 ├── config/
-│   ├── base.yaml                 # Shared configuration
-│   ├── development.yaml          # Dev overrides
-│   └── production.yaml           # Prod overrides
-├── bootstrap.py                  # Bootstrap logic
-└── main.py                       # Application entry point
+│   ├── base.yaml                 # 共通設定
+│   ├── development.yaml          # 開発環境の上書き
+│   └── production.yaml           # 本番環境の上書き
+├── bootstrap.py                  # Bootstrap ロジック
+└── main.py                       # アプリケーションのエントリポイント
 ```
 
 ### Quick Example
 
 ```python
-# 1. Define settings in each module
+# 1. 各モジュールで設定を定義する
 # settings/app.py
 from pydantic_settings import BaseSettings
 from pydantic_settings_manager import SettingsManager
@@ -174,7 +174,7 @@ settings_manager = SettingsManager(BillingSettings)
 ```
 
 ```yaml
-# config/base.yaml (shared across all environments)
+# config/base.yaml（すべての環境で共有）
 settings.app:
   name: "MyApp"
 
@@ -184,7 +184,7 @@ modules.auth.settings:
 modules.billing.settings:
   currency: "USD"
 
-# config/production.yaml (prod-specific overrides)
+# config/production.yaml（本番固有の上書き）
 settings.app:
   debug: false
   secret_key: "${SECRET_KEY}"
@@ -197,7 +197,7 @@ modules.billing.settings:
 ```
 
 ```python
-# bootstrap.py - RECOMMENDED IMPLEMENTATION
+# bootstrap.py - 推奨実装
 import os
 import yaml
 from pathlib import Path
@@ -205,18 +205,19 @@ from pydantic_settings_manager import load_user_configs, update_dict
 
 def bootstrap(environment: str | None = None) -> None:
     """
-    Bootstrap all settings managers with environment-specific configuration.
+    環境ごとの設定で、すべての settings manager を bootstrap する。
 
     Args:
-        environment: Environment name (e.g., "development", "production").
-                    If None, uses ENVIRONMENT env var or defaults to "development".
+        environment: 環境名（例: "development", "production"）。
+                    None の場合は ENVIRONMENT 環境変数を使い、
+                    未設定なら "development" を使う。
     """
     if environment is None:
         environment = os.getenv("ENVIRONMENT", "development")
 
     config_dir = Path("config")
 
-    # Load base configuration (optional)
+    # 基本設定を読み込む（任意）
     base_file = config_dir / "base.yaml"
     if base_file.exists():
         with open(base_file) as f:
@@ -224,15 +225,15 @@ def bootstrap(environment: str | None = None) -> None:
     else:
         config = {}
 
-    # Load environment-specific configuration
+    # 環境ごとの設定を読み込む
     env_file = config_dir / f"{environment}.yaml"
     if env_file.exists():
         with open(env_file) as f:
             env_config = yaml.safe_load(f) or {}
-            # Deep merge configurations (environment overrides base)
+            # 設定を deep merge する（環境設定が base を上書き）
             config = update_dict(config, env_config)
 
-    # This single line configures ALL your settings managers!
+    # この 1 行で、すべての settings manager を設定できる
     load_user_configs(config)
 
     print(f"✓ Loaded configuration for '{environment}' environment")
@@ -244,10 +245,10 @@ from modules.auth.settings import settings_manager as auth_settings_manager
 from modules.billing.settings import settings_manager as billing_settings_manager
 
 def main():
-    # Bootstrap all settings with one line
+    # 1 行ですべての設定を bootstrap する
     bootstrap("production")
 
-    # All settings are now configured and ready to use!
+    # すべての設定は構成済みで、すぐ使える
     app = app_settings_manager.settings
     auth = auth_settings_manager.settings
     billing = billing_settings_manager.settings
@@ -262,16 +263,16 @@ if __name__ == "__main__":
 
 ### Configuration File Structure
 
-The configuration file structure maps directly to your module structure:
+設定ファイルの構造は、モジュール構造に直接対応します。
 
 ```yaml
-# Key = module path (e.g., "settings.app" → settings/app.py)
-# Value = configuration for that module's settings manager
+# Key = モジュールパス（例: "settings.app" → settings/app.py）
+# Value = そのモジュールの settings manager に渡す設定
 
 settings.app:
   name: "MyApp-Production"
   debug: false
-  secret_key: "${SECRET_KEY}"  # Pydantic will read from environment
+  secret_key: "${SECRET_KEY}"  # Pydantic が環境変数から読み込む
 
 modules.auth.settings:
   jwt_secret: "${JWT_SECRET}"
@@ -284,11 +285,11 @@ modules.billing.settings:
 
 ### Custom Manager Names
 
-By default, `load_user_configs()` looks for `settings_manager` in each module. You can customize this:
+デフォルトでは、`load_user_configs()` は各モジュール内の `settings_manager` を探します。名前はカスタマイズできます。
 
 ```python
 # settings/app.py
-app_manager = SettingsManager(AppSettings)  # Custom name
+app_manager = SettingsManager(AppSettings)  # カスタム名
 
 # bootstrap.py
 load_user_configs(config, manager_name="app_manager")
@@ -296,44 +297,44 @@ load_user_configs(config, manager_name="app_manager")
 
 ### Frequently Asked Questions
 
-**Q: Do I need `multi=True` for bootstrap pattern?**
+**Q: bootstrap パターンに `multi=True` は必要ですか？**
 
-A: No! Bootstrap pattern works with both single and multi mode:
-- **Single mode** (recommended): One configuration per module
-- **Multi mode**: Multiple configurations per module (e.g., dev/staging/prod in same manager)
+A: いいえ。bootstrap パターンは single mode と multi mode の両方で動作します。
+- **Single mode**（推奨）: モジュールごとに 1 つの設定
+- **Multi mode**: モジュールごとに複数の設定（例: 同じ manager 内に dev/staging/prod）
 
 ```python
-# Single mode (simpler, recommended for most cases)
+# Single mode（よりシンプルで、多くのケースで推奨）
 settings_manager = SettingsManager(AppSettings)
 
-# Multi mode (when you need multiple configs per module)
+# Multi mode（モジュールごとに複数設定が必要な場合）
 settings_manager = SettingsManager(AppSettings, multi=True)
 ```
 
-**Q: How are environment variables like `${SECRET_KEY}` handled?**
+**Q: `${SECRET_KEY}` のような環境変数はどのように扱われますか？**
 
-A: Pydantic Settings automatically reads from environment variables. The `${VAR}` syntax in YAML is just documentation - you can use any value:
+A: Pydantic Settings が環境変数から自動的に読み込みます。YAML 内の `${VAR}` 構文はドキュメント用途です。任意の値を指定できます。
 
 ```yaml
 # config/production.yaml
 settings.app:
-  secret_key: "placeholder"  # Will be overridden by SECRET_KEY env var
+  secret_key: "placeholder"  # SECRET_KEY 環境変数で上書きされる
 ```
 
-Pydantic will automatically use `os.getenv("SECRET_KEY")` if the environment variable is set.
+環境変数が設定されている場合、Pydantic は `os.getenv("SECRET_KEY")` を自動的に使います。
 
-**Q: When should I use manual configuration instead of `load_user_configs`?**
+**Q: `load_user_configs` ではなく手動設定を使うべきなのはいつですか？**
 
-A: Only when you need module-specific logic:
-- Custom validation per module
-- Conditional configuration based on module state
-- Dynamic module discovery
+A: モジュール固有のロジックが必要な場合だけです。
+- モジュールごとのカスタムバリデーション
+- モジュール状態に応じた条件付き設定
+- 動的なモジュール検出
 
-For 99% of cases, use `load_user_configs()`.
+99% のケースでは `load_user_configs()` を使ってください。
 
-**Q: Can I use bootstrap pattern with a single module?**
+**Q: 単一モジュールでも bootstrap パターンを使えますか？**
 
-A: Yes, but it's overkill. For single-module projects, just use:
+A: はい。ただし過剰です。単一モジュールのプロジェクトでは、次のように使うだけで十分です。
 
 ```python
 manager = SettingsManager(AppSettings)
@@ -342,13 +343,13 @@ manager.user_config = yaml.safe_load(open("config.yaml"))
 
 ## Multiple Configurations
 
-For applications that need different settings for different environments or contexts:
+環境やコンテキストごとに異なる設定が必要なアプリケーション向けです。
 
 ```python
-# Enable multi-configuration mode
+# 複数設定モードを有効にする
 manager = SettingsManager(AppSettings, multi=True)
 
-# Configure multiple environments (structured format)
+# 複数環境を設定する（構造化形式）
 manager.user_config = {
     "default": "production",
     "configs": {
@@ -374,34 +375,34 @@ manager.user_config = {
     }
 }
 
-# Settings returns 'production' because 'default' is set to 'production'
+# default が production なので、settings は production を返す
 settings = manager.settings
 print(f"Prod: {settings.app_name}, Debug: {settings.debug}")
 
-# Switch between configurations dynamically
+# 設定を動的に切り替える
 manager.active_key = "development"
 dev_settings = manager.settings
 print(f"Dev: {dev_settings.app_name}, Debug: {dev_settings.debug}")
 
-# Get specific settings by alias
+# alias で特定の設定を取得する
 dev_settings = manager.get_settings("dev")
 print(f"Dev alias: {dev_settings.app_name}, Debug: {dev_settings.debug}")
 
-# Get all configurations
+# すべての設定を取得する
 all_settings = manager.all_settings
 for env, settings in all_settings.items():
     print(f"{env}: {settings.app_name}")
 ```
 
-- `default` selects the configuration used by `manager.settings` when no `active_key` is set. If neither `active_key` nor `default` is explicitly configured, `manager.settings` will automatically fall back to using the `"default"` configuration key.
-- `configs` contains the named configurations. Each entry is passed to your Pydantic Settings class.
-- `aliases` maps alternative names to real configuration names. Aliases can point to other aliases, but circular aliases are rejected.
+- `default` は、`active_key` が未設定のときに `manager.settings` が使う設定を選びます。`active_key` も `default` も明示的に設定されていない場合、`manager.settings` は自動的に `"default"` という設定キーにフォールバックします。
+- `configs` には名前付き設定を入れます。各エントリは Pydantic Settings クラスに渡されます。
+- `aliases` は別名を実際の設定名へマッピングします。alias は別の alias を指すこともできますが、循環参照は拒否されます。
 
 ## Migration Guide (v2.x to v3.0.0)
 
-If you were using the old `user_config` dictionary format (flat dictionary of environments), it is now deprecated in favor of the structured format above.
+古い `user_config` 辞書形式（環境ごとのフラットな辞書）を使っていた場合、その形式は非推奨です。上記の構造化形式へ移行してください。
 
-**Old Format (Deprecated):**
+**旧形式（非推奨）:**
 ```python
 manager.user_config = {
     "development": {...},
@@ -409,8 +410,8 @@ manager.user_config = {
 }
 ```
 
-**New Format (v3.0+):**
-Simply move your configurations into the `configs` key:
+**新形式（v3.0+）:**
+設定を `configs` キーの中へ移動するだけです。
 ```python
 manager.user_config = {
     "configs": {
@@ -422,29 +423,29 @@ manager.user_config = {
 
 ### Configuration Aliases
 
-In multi-mode, you can define aliases to reference the same configuration with different keys. This is useful for:
-- **Short names**: `dev` → `development`, `prod` → `production`
-- **Service-specific keys**: Multiple services sharing the same environment configuration
-- **Migration**: Maintaining old key names while transitioning to new ones
+multi mode では、同じ設定を別のキーで参照する alias を定義できます。次のような場合に便利です。
+- **短い名前**: `dev` → `development`、`prod` → `production`
+- **サービス固有のキー**: 複数サービスで同じ環境設定を共有する
+- **移行**: 新しいキー名へ移行しながら、古いキー名を維持する
 
 ```python
 manager = SettingsManager(AppSettings, multi=True)
 
-# Define aliases with structured format
+# 構造化形式で alias を定義する
 manager.user_config = {
     "default": "development",
     "aliases": {
-        # Short names
+        # 短い名前
         "dev": "development",
         "stg": "staging",
         "prod": "production",
 
-        # Service-specific aliases (share same environment)
+        # サービス固有の alias（同じ環境を共有）
         "account_service": "staging",
         "data_service": "staging",
         "analytics_service": "staging",
 
-        # Multi-level aliases (alias of alias)
+        # 多段 alias（alias の alias）
         "d": "dev",  # d → dev → development
     },
     "configs": {
@@ -466,30 +467,30 @@ manager.user_config = {
     }
 }
 
-# All of these return the same settings
+# これらはすべて同じ設定を返す
 dev_settings = manager.get_settings("development")
 dev_settings = manager.get_settings("dev")
 dev_settings = manager.get_settings("d")
 
-# Service-specific keys all resolve to staging
+# サービス固有のキーはすべて staging に解決される
 account_settings = manager.get_settings("account_service")
 data_settings = manager.get_settings("data_service")
-# Both return the same staging configuration
+# どちらも同じ staging 設定を返す
 ```
 
-**YAML Configuration Example:**
+**YAML 設定例:**
 
 ```yaml
 # config/production.yaml
 settings.app:
   default: production
   aliases:
-    # Short names for convenience
+    # 便利な短い名前
     dev: development
     stg: staging
     prod: production
 
-    # Service-specific aliases
+    # サービス固有の alias
     account_service: staging
     data_service: staging
 
@@ -508,16 +509,16 @@ settings.app:
       max_connections: 1000
 ```
 
-**Benefits:**
-- **DRY Principle**: Avoid duplicating the same configuration values
-- **Flexibility**: Easy to split configurations later without changing code
-- **Clarity**: Use descriptive names in code while keeping config files concise
+**メリット:**
+- **DRY 原則**: 同じ設定値の重複を避けられる
+- **柔軟性**: コードを変えずに、あとから設定を分割しやすい
+- **明確さ**: コードでは説明的な名前を使い、設定ファイルは簡潔に保てる
 
 ## Advanced Usage
 
 ### Thread Safety
 
-The `SettingsManager` is fully thread-safe and can be used in multi-threaded applications:
+`SettingsManager` は完全にスレッドセーフで、マルチスレッドアプリケーションでも利用できます。
 
 ```python
 import threading
@@ -533,12 +534,12 @@ manager.user_config = {
 }
 
 def worker_function(worker_id: int):
-    # Each thread can safely switch configurations
+    # 各スレッドは安全に設定を切り替えられる
     manager.active_key = f"worker{worker_id}"
     settings = manager.settings
     print(f"Worker {worker_id}: {settings.app_name}")
 
-# Run multiple workers concurrently
+# 複数 worker を並行実行する
 with ThreadPoolExecutor(max_workers=5) as executor:
     futures = [executor.submit(worker_function, i) for i in range(1, 3)]
     for future in futures:
@@ -548,21 +549,21 @@ with ThreadPoolExecutor(max_workers=5) as executor:
 ### Dynamic Configuration Updates
 
 ```python
-# Update individual CLI arguments
+# 個別の CLI 引数を更新する
 manager.set_cli_args("debug", True)
-manager.set_cli_args("nested.value", "test")  # Supports nested keys
+manager.set_cli_args("nested.value", "test")  # ネストしたキーに対応
 
-# Update entire CLI args
+# CLI args 全体を更新する
 manager.cli_args = {"debug": False, "max_connections": 200}
 
-# Get specific settings by key (multi mode)
+# key を指定して設定を取得する（multi mode）
 dev_settings = manager.get_settings("development")
 prod_settings = manager.get_settings("production")
 ```
 
 ## CLI Integration
 
-Integrate with command-line tools for runtime configuration:
+コマンドラインツールと連携して、実行時に設定できます。
 
 ```python
 # cli.py
@@ -580,10 +581,10 @@ from settings.app import app_settings_manager
 def main(environment: str, debug: bool, max_connections: int):
     """Run the application with specified settings"""
 
-    # Bootstrap with environment
+    # environment を指定して bootstrap する
     bootstrap_settings(environment)
 
-    # Apply CLI overrides
+    # CLI の上書きを適用する
     cli_overrides = {}
     if debug is not None:
         cli_overrides["debug"] = debug
@@ -593,7 +594,7 @@ def main(environment: str, debug: bool, max_connections: int):
     if cli_overrides:
         app_settings_manager.cli_args = cli_overrides
 
-    # Run application
+    # アプリケーションを実行する
     settings = app_settings_manager.settings
     print(f"Running {settings.name} in {environment} mode")
     print(f"Debug: {settings.debug}")
@@ -602,15 +603,15 @@ if __name__ == "__main__":
     main()
 ```
 
-Usage:
+使い方:
 ```bash
-# Run with defaults
+# デフォルト設定で実行
 python cli.py
 
-# Run in production with debug enabled
+# production で debug を有効にして実行
 python cli.py --environment production --debug
 
-# Override specific settings
+# 特定の設定を上書き
 python cli.py --max-connections 500
 ```
 
@@ -618,19 +619,19 @@ python cli.py --max-connections 500
 
 ### pydantic-config-builder
 
-For complex projects with multiple configuration files, you might want to use [`pydantic-config-builder`](https://github.com/kiarina/pydantic-config-builder) to merge and build your YAML configuration files:
+複数の設定ファイルを持つ複雑なプロジェクトでは、YAML 設定ファイルのマージとビルドに [`pydantic-config-builder`](https://github.com/kiarina/pydantic-config-builder) を使うと便利です。
 
 ```bash
 pip install pydantic-config-builder
 ```
 
-This tool allows you to:
-- Merge multiple YAML files into a single configuration
-- Use base configurations with overlay files
-- Build different configurations for different environments
-- Support glob patterns and recursive merging
+このツールでできること:
+- 複数の YAML ファイルを 1 つの設定へマージ
+- base 設定と overlay ファイルの利用
+- 環境ごとに異なる設定のビルド
+- glob パターンと再帰的マージのサポート
 
-Example workflow:
+ワークフロー例:
 ```yaml
 # pydantic_config_builder.yml
 development:
@@ -648,12 +649,12 @@ production:
     - config/prod.yaml
 ```
 
-Then use the generated configurations with your settings manager:
+生成された設定を settings manager で使います。
 ```python
 import yaml
 from your_app import settings_manager
 
-# Load the built configuration
+# ビルド済み設定を読み込む
 with open("config/dev.yaml") as f:
     config = yaml.safe_load(f)
 
@@ -662,48 +663,48 @@ settings_manager.user_config = config
 
 ## Development
 
-This project uses [mise](https://mise.jdx.dev/) for development environment management.
+このプロジェクトでは、開発環境の管理に [mise](https://mise.jdx.dev/) を使っています。
 
 ### Quick Start
 
 ```bash
-# Install mise (macOS)
+# mise をインストールする（macOS）
 brew install mise
 
-# Clone and setup
+# clone してセットアップする
 git clone https://github.com/kiarina/pydantic-settings-manager.git
 cd pydantic-settings-manager
 mise run setup
 
-# Verify everything works
+# すべてが動くことを確認する
 mise run ci
 ```
 
 ### Common Tasks
 
 ```bash
-# Daily development (auto-fix + test)
+# 日々の開発（自動修正 + test）
 mise run
 
-# Before committing (full CI checks)
+# commit 前（フル CI チェック）
 mise run ci
 
-# Run tests
+# test を実行
 mise run test
 mise run test -v          # verbose
-mise run test -c          # with coverage
+mise run test -c          # coverage 付き
 
-# Code quality
+# コード品質
 mise run format           # format code
 mise run lint             # check issues
 mise run lint-fix         # auto-fix issues
 mise run typecheck        # type check
 
-# Dependencies
+# 依存関係
 mise run upgrade          # upgrade dependencies
 mise run upgrade --sync   # upgrade and sync
 
-# Release (see docs/how_to_release.md for details)
+# release（詳細は docs/how_to_release.md を参照）
 mise run version 2.3.0
 mise run update-changelog 2.3.0
 mise run ci
@@ -713,21 +714,21 @@ git tag v2.3.0 && git push origin main --tags
 
 ### Technology Stack
 
-- **[mise](https://mise.jdx.dev/)**: Development environment and task runner
-- **[uv](https://github.com/astral-sh/uv)**: Fast Python package manager
-- **[ruff](https://github.com/astral-sh/ruff)**: Fast linter and formatter
-- **[mypy](https://mypy-lang.org/)**: Static type checking
-- **[pytest](https://pytest.org/)**: Testing framework
+- **[mise](https://mise.jdx.dev/)**: 開発環境とタスクランナー
+- **[uv](https://github.com/astral-sh/uv)**: 高速な Python パッケージマネージャ
+- **[ruff](https://github.com/astral-sh/ruff)**: 高速な linter / formatter
+- **[mypy](https://mypy-lang.org/)**: 静的型チェック
+- **[pytest](https://pytest.org/)**: テストフレームワーク
 
-For detailed documentation, see:
-- Available tasks: `mise tasks`
-- Release process: `docs/how_to_release.md`
+詳しいドキュメント:
+- 利用できるタスク: `mise tasks`
+- リリース手順: `docs/how_to_release.md`
 
 ## API Reference
 
 ### SettingsManager
 
-The main class for managing Pydantic settings.
+Pydantic settings を管理するメインクラスです。
 
 ```python
 class SettingsManager(Generic[T]):
@@ -735,27 +736,27 @@ class SettingsManager(Generic[T]):
 ```
 
 #### Parameters
-- `settings_cls`: The Pydantic settings class to manage
-- `multi`: Whether to enable multi-configuration mode (default: False)
+- `settings_cls`: 管理対象の Pydantic settings クラス
+- `multi`: 複数設定モードを有効にするかどうか（デフォルト: False）
 
 #### Properties
-- `settings: T` - Get the current active settings
-- `all_settings: dict[str, T]` - Get all settings (multi mode)
-- `user_config: dict[str, Any]` - Get/set user configuration
-- `cli_args: dict[str, Any]` - Get/set CLI arguments
-- `active_key: str | None` - Get/set active key (multi mode only)
+- `settings: T` - 現在有効な設定を取得する
+- `all_settings: dict[str, T]` - すべての設定を取得する（multi mode）
+- `user_config: dict[str, Any]` - ユーザー設定を取得・設定する
+- `cli_args: dict[str, Any]` - CLI 引数を取得・設定する
+- `active_key: str | None` - 有効な key を取得・設定する（multi mode のみ）
 
 #### Methods
-- `get_settings(key: str | None = None) -> T` - Get settings by key or current active settings
-- `clear() -> None` - Clear cached settings
-- `set_cli_args(target: str, value: Any) -> None` - Set individual CLI argument
-- `reset_user_config() -> None` - Reset user configuration and state to empty
+- `get_settings(key: str | None = None) -> T` - key または現在有効な設定を取得する
+- `clear() -> None` - キャッシュ済み設定をクリアする
+- `set_cli_args(target: str, value: Any) -> None` - 個別の CLI 引数を設定する
+- `reset_user_config() -> None` - ユーザー設定と状態を空にリセットする
 
 ## Migration from v2 to v3
 
 ### Direct format migration
 
-Before:
+変更前:
 ```python
 manager.user_config = {
     "development": {...},
@@ -763,7 +764,7 @@ manager.user_config = {
 }
 ```
 
-After:
+変更後:
 ```python
 manager.user_config = {
     "default": "production",
@@ -776,7 +777,7 @@ manager.user_config = {
 
 ### Old structured format migration
 
-Before:
+変更前:
 ```python
 manager.user_config = {
     "key": "production",
@@ -787,7 +788,7 @@ manager.user_config = {
 }
 ```
 
-After:
+変更後:
 ```python
 manager.user_config = {
     "default": "production",
@@ -800,24 +801,24 @@ manager.user_config = {
 
 ### `get_settings_by_key()` migration
 
-Before:
+変更前:
 ```python
 settings = manager.get_settings_by_key("production")
 ```
 
-After:
+変更後:
 ```python
 settings = manager.get_settings("production")
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+このプロジェクトは MIT License のもとで公開されています。詳細は [LICENSE](LICENSE) ファイルを参照してください。
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+コントリビューションを歓迎します。ぜひ Pull Request を送ってください。
 
 ## Documentation
 
-For more detailed documentation and examples, please see the [GitHub repository](https://github.com/kiarina/pydantic-settings-manager).
+より詳しいドキュメントと例は、[GitHub repository](https://github.com/kiarina/pydantic-settings-manager) を参照してください。

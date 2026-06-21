@@ -1,7 +1,5 @@
 ---
 files:
-- "knowledges/**/*.md"
-- "playbooks/**/*.md"
-- "runbooks/**/*.md"
+- "*.md"
 - "../mise-tasks"
 ---
