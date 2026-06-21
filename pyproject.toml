@@ -29,6 +29,9 @@ homepage = "https://github.com/kiarina/pydantic-settings-manager"
 repository = "https://github.com/kiarina/pydantic-settings-manager"
 documentation = "https://github.com/kiarina/pydantic-settings-manager"
 
+[project.scripts]
+pydantic-settings-manager = "pydantic_settings_manager.cli:main"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

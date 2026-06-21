@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ### Added
 
+- Added the `pydantic-settings-manager generate-user-configs` CLI command for writing user settings YAML templates to stdout.
 - Added `generate_user_configs_yaml()` to generate commented `user_settings.yaml` templates from existing settings managers.
 
 ### Changed

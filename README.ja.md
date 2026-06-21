@@ -301,6 +301,16 @@ yaml_text = generate_user_configs_yaml(
 )
 ```
 
+同じ雛形はコマンドラインからも生成できます。
+
+```bash
+pydantic-settings-manager generate-user-configs \
+  settings.app \
+  modules.auth.settings \
+  modules.billing.settings \
+  > user_settings.yaml
+```
+
 デフォルト値を持つフィールドはコメントアウトされ、必須フィールドは有効な状態で出力されます。
 
 ```yaml
@@ -325,6 +335,12 @@ app_manager = SettingsManager(AppSettings)  # カスタム名
 
 # bootstrap.py
 load_user_configs(config, manager_name="app_manager")
+```
+
+template generator CLI でもカスタム manager 名を指定できます。
+
+```bash
+pydantic-settings-manager generate-user-configs --manager-name app_manager settings.app
 ```
 
 ### Frequently Asked Questions
