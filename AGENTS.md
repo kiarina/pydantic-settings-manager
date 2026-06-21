@@ -11,6 +11,9 @@
 - `Makefile`
 - `pydantic_settings_manager/`
 
+コードの設計・追加・編集を行う場合、下記も先に把握してください。
+- https://github.com/kiarina/crystal-architecture
+
 リリースする際は、作業前に下記を把握してください。
 - docs/how_to_release.md
 
@@ -28,3 +31,16 @@
 ```bash
 make
 ```
+
+## テスト方針
+
+- **フレームワーク**: `pytest` を使用します。
+- **配置場所**: `tests/` ディレクトリ以下に配置します。
+- **構造**: `pydantic_settings_manager/` ディレクトリの構造をそのままミラーリングします。
+  - 例: `pydantic_settings_manager/_helpers/load_user_configs.py` のテストは `tests/_helpers/test_load_user_configs.py` に配置します。
+- **特定のユースケースのテスト**: `tests/use_cases/` ディレクトリを作成し、特定のユースケースに対するテストコードを配置します。
+  - 例: `tests/use_cases/test_thread_safety.py`
+- **命名規則**:
+  - 各ディレクトリには `__init__.py` を配置し、同名のテストファイル（例: `test_common.py`）が衝突しないようにします。
+  - テストコードはクラス（`unittest.TestCase`）ではなく、関数（`def test_...():`）ベースで記述します。
+- **実行方法**: `make test`
