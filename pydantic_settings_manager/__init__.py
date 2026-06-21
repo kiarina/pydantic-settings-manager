@@ -23,10 +23,17 @@ from importlib.metadata import version
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from .helpers import clear_user_configs, generate_user_configs_yaml, load_user_configs
-from .manager import DEFAULT_KEY, SettingsManager
-from .types import ConfigPolicy, ModuleName, SettingsKey, UserConfig, UserConfigs
-from .utils import update_dict
+from ._constants.default_key import DEFAULT_KEY
+from ._helpers.clear_user_configs import clear_user_configs
+from ._helpers.generate_user_configs_yaml import generate_user_configs_yaml
+from ._helpers.load_user_configs import load_user_configs
+from ._models.settings_manager import SettingsManager
+from ._types.config_policy import ConfigPolicy
+from ._types.module_name import ModuleName
+from ._types.settings_key import SettingsKey
+from ._types.user_config import UserConfig
+from ._types.user_configs import UserConfigs
+from ._utils.update_dict import update_dict
 
 __version__ = version("pydantic-settings-manager")
 
