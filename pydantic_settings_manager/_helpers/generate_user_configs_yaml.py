@@ -68,7 +68,7 @@ def _generate_settings_fields_yaml_lines(
         if field_info.description:
             for description_line in _clean_doc_lines(field_info.description):
                 if description_line:
-                    lines.append(f"{comment_prefix}# {description_line}")
+                    lines.append(f"{comment_prefix}#   {description_line}")
                 else:
                     lines.append(f"{comment_prefix}#")
 
