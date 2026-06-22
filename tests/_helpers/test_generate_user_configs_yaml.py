@@ -57,6 +57,24 @@ class TemplateSettings(BaseSettings):
     )
 
 
+class MultilineTemplateSettings(BaseSettings):
+    """
+    Settings for multiline comments.
+
+    The second paragraph should remain separated.
+    """
+
+    value: str = Field(
+        "default",
+        title="Value",
+        description="""
+        First description line.
+
+        Second description paragraph.
+        """,
+    )
+
+
 def register_module_path(module_name: str, module: ModuleType) -> list[str]:
     registered = []
     parts = module_name.split(".")
@@ -89,21 +107,23 @@ def test_generate_user_configs_yaml_template() -> None:
 
         assert yaml == "\n".join(
             [
+                "#--------------------------------------------------------------------------------",
                 "# Settings for HogeFuga service.",
+                "#--------------------------------------------------------------------------------",
                 "hoge.fuga:",
-                "  # Hello Count",
+                "  # Hello Count:",
                 "  # Number of times to say hello",
                 "  # hello_count: 1",
                 "  #--------------------------------------------------",
-                "  # API Key",
+                "  # API Key:",
                 "  # API key for accessing the service",
                 "  api_key:",
                 "  #--------------------------------------------------",
-                "  # Metadata",
+                "  # Metadata:",
                 "  # Additional metadata for the service",
                 "  # metadata: {}",
                 "  #--------------------------------------------------",
-                "  # Hoge Items",
+                "  # Hoge Items:",
                 "  # List of Hoge items",
                 "  # hoge_items:",
                 "  #   - name: default",
@@ -127,24 +147,26 @@ def test_generate_user_configs_yaml_template_for_multi_mode() -> None:
 
         assert yaml == "\n".join(
             [
+                "#--------------------------------------------------------------------------------",
                 "# Settings for HogeFuga service.",
+                "#--------------------------------------------------------------------------------",
                 "hoge.multi:",
                 "  # default: default",
                 "  configs:",
                 "    default:",
-                "      # Hello Count",
+                "      # Hello Count:",
                 "      # Number of times to say hello",
                 "      # hello_count: 1",
                 "      #--------------------------------------------------",
-                "      # API Key",
+                "      # API Key:",
                 "      # API key for accessing the service",
                 "      api_key:",
                 "      #--------------------------------------------------",
-                "      # Metadata",
+                "      # Metadata:",
                 "      # Additional metadata for the service",
                 "      # metadata: {}",
                 "      #--------------------------------------------------",
-                "      # Hoge Items",
+                "      # Hoge Items:",
                 "      # List of Hoge items",
                 "      # hoge_items:",
                 "      #   - name: default",
@@ -174,17 +196,47 @@ def test_generate_user_configs_yaml_module_key_rules_and_order() -> None:
         yaml = generate_user_configs_yaml(["hoge.fuga.settings", "hoge.fuga._fire.settings"])
 
         assert yaml.splitlines() == [
+            "#--------------------------------------------------------------------------------",
             "# Example settings class for testing.",
+            "#--------------------------------------------------------------------------------",
             "hoge.fuga.settings:",
             "  # name: default",
             "  #--------------------------------------------------",
             "  # value: 0",
             "",
+            "#--------------------------------------------------------------------------------",
             "# Example settings class for testing.",
+            "#--------------------------------------------------------------------------------",
             "hoge.fuga:",
             "  # name: default",
             "  #--------------------------------------------------",
             "  # value: 0",
+        ]
+
+    finally:
+        cleanup_modules(registered_modules)
+
+
+def test_generate_user_configs_yaml_multiline_comments() -> None:
+    module = ModuleType("hoge.multiline._settings")
+    module.settings_manager = SettingsManager(MultilineTemplateSettings)  # type: ignore[attr-defined]
+    registered_modules = register_module_path("hoge.multiline._settings", module)
+
+    try:
+        yaml = generate_user_configs_yaml(["hoge.multiline._settings"])
+
+        assert yaml.splitlines() == [
+            "#--------------------------------------------------------------------------------",
+            "# Settings for multiline comments.",
+            "#",
+            "# The second paragraph should remain separated.",
+            "#--------------------------------------------------------------------------------",
+            "hoge.multiline:",
+            "  # Value:",
+            "  # First description line.",
+            "  #",
+            "  # Second description paragraph.",
+            "  # value: default",
         ]
 
     finally:

@@ -49,6 +49,8 @@ def test_generate_user_configs_command_outputs_yaml(
         assert exit_code == 0
         assert captured.err == ""
         assert captured.out.splitlines() == [
+            "#--------------------------------------------------------------------------------",
+            "#--------------------------------------------------------------------------------",
             "hoge.fuga:",
             "  # name: default",
             "  #--------------------------------------------------",
@@ -79,7 +81,7 @@ def test_generate_user_configs_command_supports_custom_manager_name(
         captured = capsys.readouterr()
         assert exit_code == 0
         assert captured.err == ""
-        assert captured.out.splitlines()[0] == "hoge.fuga.settings:"
+        assert captured.out.splitlines()[2] == "hoge.fuga.settings:"
 
     finally:
         cleanup_modules(registered_modules)

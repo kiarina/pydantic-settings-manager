@@ -1,9 +1,12 @@
+import inspect
 from typing import Any
 
 from pydantic import BaseModel
 
 from .._constants.default_key import DEFAULT_KEY
 from .._operations.resolve_settings_manager import resolve_settings_manager
+
+_IMPORT_PATH_SEPARATOR = "#" + "-" * 80
 
 
 def generate_user_configs_yaml(
@@ -23,12 +26,13 @@ def _generate_user_config_yaml_block(import_path: str, *, manager_name: str) -> 
     settings_manager = resolve_settings_manager(import_path, manager_name)
     settings_cls = settings_manager.settings_cls
 
-    lines: list[str] = []
+    lines: list[str] = [_IMPORT_PATH_SEPARATOR]
     doc = settings_cls.__doc__
     if doc:
         for doc_line in _clean_doc_lines(doc):
             lines.append(f"# {doc_line}" if doc_line else "#")
 
+    lines.append(_IMPORT_PATH_SEPARATOR)
     lines.append(f"{_module_config_key(import_path)}:")
     if settings_manager.multi:
         lines.append(f"  # default: {DEFAULT_KEY}")
@@ -57,7 +61,7 @@ def _generate_settings_fields_yaml_lines(
             lines.append(separator)
 
         if field_info.title:
-            lines.append(f"{comment_prefix}# {field_info.title}")
+            lines.append(f"{comment_prefix}# {field_info.title}:")
         if field_info.description:
             for description_line in _clean_doc_lines(field_info.description):
                 if description_line:
@@ -90,7 +94,7 @@ def _module_config_key(import_path: str) -> str:
 
 
 def _clean_doc_lines(value: str) -> list[str]:
-    return [line.strip() for line in value.strip().splitlines()]
+    return inspect.cleandoc(value).splitlines()
 
 
 def _to_yaml_value(value: Any) -> Any:
