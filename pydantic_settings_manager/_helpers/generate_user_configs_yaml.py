@@ -1,5 +1,6 @@
 import inspect
-from typing import Any
+from types import NoneType, UnionType
+from typing import Annotated, Any, Literal, Union, get_args, get_origin
 
 from pydantic import BaseModel
 
@@ -60,8 +61,10 @@ def _generate_settings_fields_yaml_lines(
         if index:
             lines.append(separator)
 
-        if field_info.title:
-            lines.append(f"{comment_prefix}# {field_info.title}:")
+        field_title = field_info.title or field_name
+        field_type = _format_type_annotation(field_info.annotation)
+        lines.append(f"{comment_prefix}# {field_title}: {field_type}")
+
         if field_info.description:
             for description_line in _clean_doc_lines(field_info.description):
                 if description_line:
@@ -95,6 +98,53 @@ def _module_config_key(import_path: str) -> str:
 
 def _clean_doc_lines(value: str) -> list[str]:
     return inspect.cleandoc(value).splitlines()
+
+
+def _format_type_annotation(annotation: Any) -> str:
+    if annotation is Any:
+        return "Any"
+    if annotation is None:
+        return "Any"
+    if annotation is NoneType:
+        return "None"
+
+    origin = get_origin(annotation)
+    if origin is Annotated:
+        args = get_args(annotation)
+        if args:
+            return _format_type_annotation(args[0])
+
+    if origin is Literal:
+        args = get_args(annotation)
+        return f"Literal[{', '.join(repr(arg) for arg in args)}]"
+
+    if origin in {Union, UnionType}:
+        args = get_args(annotation)
+        return " | ".join(_format_type_annotation(arg) for arg in args)
+
+    if origin is not None:
+        args = get_args(annotation)
+        origin_name = _format_type_name(origin)
+        if args:
+            return f"{origin_name}[{', '.join(_format_type_annotation(arg) for arg in args)}]"
+        return origin_name
+
+    return _format_type_name(annotation)
+
+
+def _format_type_name(annotation: Any) -> str:
+    if isinstance(annotation, str):
+        return annotation
+
+    name = getattr(annotation, "__name__", None)
+    if isinstance(name, str):
+        return name
+
+    name = getattr(annotation, "_name", None)
+    if isinstance(name, str):
+        return name
+
+    return str(annotation).removeprefix("typing.").removeprefix("collections.abc.")
 
 
 def _to_yaml_value(value: Any) -> Any:

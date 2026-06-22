@@ -315,10 +315,10 @@ Fields with defaults are commented out, while required fields are left active:
 ```yaml
 # Settings for the application
 settings.app:
-  # Application Name
+  # Application Name: str
   # app_name: MyApp
   #--------------------------------------------------
-  # Secret Key
+  # Secret Key: str
   secret_key:
 ```
 
@@ -330,10 +330,10 @@ settings.app:
   # default: default
   configs:
     default:
-      # Application Name
+      # Application Name: str
       # app_name: MyApp
       #--------------------------------------------------
-      # Secret Key
+      # Secret Key: str
       secret_key:
   # aliases: {}
 ```

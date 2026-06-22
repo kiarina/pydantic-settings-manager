@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-06-22
+
+### Changed
+
+- Updated `generate_user_configs_yaml()` field comments to include concise type information.
+
 ## [3.4.0] - 2026-06-22
 
 ### Changed
