@@ -7,7 +7,7 @@
 あらゆるタスクを開始する前に、下記を必ず把握してください。
 - `pyproject.toml`
 - `README.md`
-- `mise-tasks/`
+- `.mise/tasks/`
 - `Makefile`
 - `pydantic_settings_manager/`
 
