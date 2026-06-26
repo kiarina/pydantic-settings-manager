@@ -7,9 +7,7 @@ def resolve_settings_manager(module_name: str, manager_name: str) -> SettingsMan
     try:
         module = import_module(module_name)
     except ModuleNotFoundError as e:
-        if e.name == module_name or (
-            e.name is not None and module_name.startswith(f"{e.name}.")
-        ):
+        if e.name == module_name or (e.name is not None and module_name.startswith(f"{e.name}.")):
             raise ModuleNotFoundError(
                 f"Module not found: {module_name}",
                 name=module_name,
