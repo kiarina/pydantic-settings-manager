@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from types import ModuleType
 
 import pytest
@@ -34,8 +35,33 @@ def test_resolve_settings_manager_success() -> None:
 
 
 def test_resolve_settings_manager_module_not_found() -> None:
-    with pytest.raises(ModuleNotFoundError, match="Module not found: missing_module"):
+    with pytest.raises(ModuleNotFoundError, match="Module not found: missing_module") as exc_info:
         resolve_settings_manager("missing_module", "settings_manager")
+
+    assert exc_info.value.name == "missing_module"
+
+
+def test_resolve_settings_manager_missing_parent_module() -> None:
+    module_name = "missing_package.settings"
+
+    with pytest.raises(ModuleNotFoundError, match=f"Module not found: {module_name}") as exc_info:
+        resolve_settings_manager(module_name, "settings_manager")
+
+    assert exc_info.value.name == module_name
+
+
+def test_resolve_settings_manager_preserves_missing_internal_dependency(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module_name = "test_resolve_missing_internal_dependency"
+    (tmp_path / f"{module_name}.py").write_text("import nonexistent_dependency\n")
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    with pytest.raises(ModuleNotFoundError, match="nonexistent_dependency") as exc_info:
+        resolve_settings_manager(module_name, "settings_manager")
+
+    assert exc_info.value.name == "nonexistent_dependency"
 
 
 def test_resolve_settings_manager_missing_attribute() -> None:

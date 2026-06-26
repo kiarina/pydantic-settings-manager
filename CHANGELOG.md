@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Added `missing_module_policy` to `load_user_configs()` with `"error"`, `"warn"`, and `"ignore"` behaviors for optional modules.
+
+### Changed
+
+- Renamed `load_user_configs(policy=...)` to `update_policy=...` and `ConfigPolicy` to `ConfigUpdatePolicy`.
+
 ## [3.6.0] - 2026-06-22
 
 ### Changed

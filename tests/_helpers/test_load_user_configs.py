@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 from types import ModuleType
 from typing import Any
 
@@ -71,6 +72,34 @@ def test_load_user_configs_module_not_found() -> None:
 
     with pytest.raises(ModuleNotFoundError, match="Module not found: nonexistent_module"):
         load_user_configs(configs)
+
+
+def test_load_user_configs_missing_module_policy_warn() -> None:
+    configs: dict[str, Any] = {"nonexistent_module": {"name": "test"}}
+
+    with pytest.warns(UserWarning, match="Module not found: nonexistent_module"):
+        load_user_configs(configs, missing_module_policy="warn")
+
+
+def test_load_user_configs_missing_module_policy_ignore() -> None:
+    configs: dict[str, Any] = {"nonexistent_module": {"name": "test"}}
+
+    load_user_configs(configs, missing_module_policy="ignore")
+
+
+def test_load_user_configs_does_not_ignore_missing_internal_dependency(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module_name = "test_module_with_missing_dependency"
+    (tmp_path / f"{module_name}.py").write_text("import nonexistent_dependency\n")
+    monkeypatch.syspath_prepend(str(tmp_path))
+
+    with pytest.raises(ModuleNotFoundError, match="nonexistent_dependency"):
+        load_user_configs(
+            {module_name: {"name": "test"}},
+            missing_module_policy="ignore",
+        )
 
 
 def test_load_user_configs_missing_manager_attribute() -> None:
@@ -179,94 +208,108 @@ def test_load_user_configs_partial_failure() -> None:
         del sys.modules["test_partial1"]
 
 
-def test_load_user_configs_policy_replace() -> None:
-    module = ModuleType("test_policy_replace")
+def test_load_user_configs_update_policy_replace() -> None:
+    module = ModuleType("test_update_policy_replace")
     module.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]
-    sys.modules["test_policy_replace"] = module
+    sys.modules["test_update_policy_replace"] = module
 
     try:
-        load_user_configs({"test_policy_replace": {"name": "first", "value": 1}})
-        load_user_configs({"test_policy_replace": {"name": "second"}}, policy="replace")
+        load_user_configs({"test_update_policy_replace": {"name": "first", "value": 1}})
+        load_user_configs(
+            {"test_update_policy_replace": {"name": "second"}},
+            update_policy="replace",
+        )
 
         settings = module.settings_manager.settings
         assert settings.name == "second"
         assert settings.value == 0
 
     finally:
-        del sys.modules["test_policy_replace"]
+        del sys.modules["test_update_policy_replace"]
 
 
-def test_load_user_configs_policy_merge_flat() -> None:
-    module = ModuleType("test_policy_merge_flat")
+def test_load_user_configs_update_policy_merge_flat() -> None:
+    module = ModuleType("test_update_policy_merge_flat")
     module.settings_manager = SettingsManager(ExampleSettings)  # type: ignore[attr-defined]
-    sys.modules["test_policy_merge_flat"] = module
+    sys.modules["test_update_policy_merge_flat"] = module
 
     try:
-        load_user_configs({"test_policy_merge_flat": {"name": "first", "value": 1}})
-        load_user_configs({"test_policy_merge_flat": {"name": "second"}}, policy="merge")
+        load_user_configs({"test_update_policy_merge_flat": {"name": "first", "value": 1}})
+        load_user_configs(
+            {"test_update_policy_merge_flat": {"name": "second"}},
+            update_policy="merge",
+        )
 
         settings = module.settings_manager.settings
         assert settings.name == "second"
         assert settings.value == 1
 
     finally:
-        del sys.modules["test_policy_merge_flat"]
+        del sys.modules["test_update_policy_merge_flat"]
 
 
-def test_load_user_configs_policy_merge_nested() -> None:
-    module = ModuleType("test_policy_merge_nested")
+def test_load_user_configs_update_policy_merge_nested() -> None:
+    module = ModuleType("test_update_policy_merge_nested")
     module.settings_manager = SettingsManager(NestedSettings)  # type: ignore[attr-defined]
-    sys.modules["test_policy_merge_nested"] = module
+    sys.modules["test_update_policy_merge_nested"] = module
 
     try:
         load_user_configs(
-            {"test_policy_merge_nested": {"nested": {"a": 1, "b": 2}}},
+            {"test_update_policy_merge_nested": {"nested": {"a": 1, "b": 2}}},
         )
         load_user_configs(
-            {"test_policy_merge_nested": {"nested": {"b": 99, "c": 3}}},
-            policy="merge",
+            {"test_update_policy_merge_nested": {"nested": {"b": 99, "c": 3}}},
+            update_policy="merge",
         )
 
         settings = module.settings_manager.settings
         assert settings.nested == {"a": 1, "b": 99, "c": 3}
 
     finally:
-        del sys.modules["test_policy_merge_nested"]
+        del sys.modules["test_update_policy_merge_nested"]
 
 
-def test_load_user_configs_policy_merge_list_replaced() -> None:
-    module = ModuleType("test_policy_merge_list")
+def test_load_user_configs_update_policy_merge_list_replaced() -> None:
+    module = ModuleType("test_update_policy_merge_list")
     module.settings_manager = SettingsManager(NestedSettings)  # type: ignore[attr-defined]
-    sys.modules["test_policy_merge_list"] = module
+    sys.modules["test_update_policy_merge_list"] = module
 
     try:
         load_user_configs(
-            {"test_policy_merge_list": {"nested": {"items": [1, 2, 3]}}},
+            {"test_update_policy_merge_list": {"nested": {"items": [1, 2, 3]}}},
         )
         load_user_configs(
-            {"test_policy_merge_list": {"nested": {"items": [4, 5]}}},
-            policy="merge",
+            {"test_update_policy_merge_list": {"nested": {"items": [4, 5]}}},
+            update_policy="merge",
         )
 
         settings = module.settings_manager.settings
         assert settings.nested == {"items": [4, 5]}
 
     finally:
-        del sys.modules["test_policy_merge_list"]
+        del sys.modules["test_update_policy_merge_list"]
 
 
-def test_load_user_configs_policy_merge_multi_mode() -> None:
-    module = ModuleType("test_policy_merge_multi")
+def test_load_user_configs_update_policy_merge_multi_mode() -> None:
+    module = ModuleType("test_update_policy_merge_multi")
     module.settings_manager = SettingsManager(ExampleSettings, multi=True)  # type: ignore[attr-defined]
-    sys.modules["test_policy_merge_multi"] = module
+    sys.modules["test_update_policy_merge_multi"] = module
 
     try:
         load_user_configs(
-            {"test_policy_merge_multi": {"configs": {"dev": {"name": "dev-app", "value": 1}}}},
+            {
+                "test_update_policy_merge_multi": {
+                    "configs": {"dev": {"name": "dev-app", "value": 1}}
+                }
+            },
         )
         load_user_configs(
-            {"test_policy_merge_multi": {"configs": {"prod": {"name": "prod-app", "value": 2}}}},
-            policy="merge",
+            {
+                "test_update_policy_merge_multi": {
+                    "configs": {"prod": {"name": "prod-app", "value": 2}}
+                }
+            },
+            update_policy="merge",
         )
 
         manager = module.settings_manager
@@ -276,9 +319,17 @@ def test_load_user_configs_policy_merge_multi_mode() -> None:
         assert manager.settings.name == "prod-app"
 
     finally:
-        del sys.modules["test_policy_merge_multi"]
+        del sys.modules["test_update_policy_merge_multi"]
 
 
-def test_load_user_configs_invalid_policy() -> None:
-    with pytest.raises(ValueError, match="policy must be 'replace' or 'merge'"):
-        load_user_configs({}, policy="invalid")  # type: ignore[arg-type]
+def test_load_user_configs_invalid_update_policy() -> None:
+    with pytest.raises(ValueError, match="update_policy must be 'replace' or 'merge'"):
+        load_user_configs({}, update_policy="invalid")  # type: ignore[arg-type]
+
+
+def test_load_user_configs_invalid_missing_module_policy() -> None:
+    with pytest.raises(
+        ValueError,
+        match="missing_module_policy must be 'error', 'warn', or 'ignore'",
+    ):
+        load_user_configs({}, missing_module_policy="invalid")  # type: ignore[arg-type]

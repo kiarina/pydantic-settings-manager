@@ -28,7 +28,8 @@ from ._helpers.clear_user_configs import clear_user_configs
 from ._helpers.generate_user_configs_yaml import generate_user_configs_yaml
 from ._helpers.load_user_configs import load_user_configs
 from ._models.settings_manager import SettingsManager
-from ._types.config_policy import ConfigPolicy
+from ._types.config_update_policy import ConfigUpdatePolicy
+from ._types.missing_module_policy import MissingModulePolicy
 from ._types.module_name import ModuleName
 from ._types.settings_key import SettingsKey
 from ._types.user_config import UserConfig
@@ -40,7 +41,8 @@ __version__ = version("pydantic-settings-manager")
 __all__ = [
     "DEFAULT_KEY",
     "BaseSettings",
-    "ConfigPolicy",
+    "ConfigUpdatePolicy",
+    "MissingModulePolicy",
     "ModuleName",
     "SettingsConfigDict",
     "SettingsKey",

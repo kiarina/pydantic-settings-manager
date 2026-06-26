@@ -358,6 +358,23 @@ The template generator CLI supports custom manager names too:
 pydantic-settings-manager generate-user-configs --manager-name app_manager settings.app
 ```
 
+When configuration may include optional modules, use `missing_module_policy` to control how
+missing modules are handled:
+
+```python
+# Raise ModuleNotFoundError (default)
+load_user_configs(config, missing_module_policy="error")
+
+# Emit a warning and continue
+load_user_configs(config, missing_module_policy="warn")
+
+# Silently skip missing modules
+load_user_configs(config, missing_module_policy="ignore")
+```
+
+This policy applies only when the configured module itself does not exist. Import errors caused
+by missing dependencies inside an existing module are always raised.
+
 ### Frequently Asked Questions
 
 **Q: Do I need `multi=True` for bootstrap pattern?**
@@ -817,7 +834,7 @@ class SettingsManager(Generic[T]):
 
 ### Helper Functions
 
-- `load_user_configs(user_configs, *, manager_name="settings_manager", policy="replace") -> None` - Load user configurations into settings managers
+- `load_user_configs(user_configs, *, manager_name="settings_manager", update_policy="replace", missing_module_policy="error") -> None` - Load user configurations into settings managers
 - `clear_user_configs(user_configs, *, manager_name="settings_manager") -> None` - Clear user configurations from settings managers
 - `generate_user_configs_yaml(import_paths, *, manager_name="settings_manager") -> str` - Generate a starter YAML template from settings managers
 
