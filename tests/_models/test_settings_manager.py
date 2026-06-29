@@ -16,6 +16,13 @@ class ExampleSettings(BaseSettings):
     debug: bool = False
 
 
+class RequiredFieldSettings(BaseSettings):
+    """Settings class with a required field for testing"""
+
+    name: str
+    debug: bool = False
+
+
 # Single Mode Tests
 
 
@@ -213,6 +220,20 @@ def test_no_default_falls_back_to_default_key() -> None:
     }
     # Should fallback to DEFAULT_KEY ("default")
     assert manager.settings.debug is True
+
+
+def test_default_key_set_skips_synthetic_default_with_required_fields() -> None:
+    manager = SettingsManager(RequiredFieldSettings, multi=True)
+    manager.user_config = {
+        "default": "production",
+        "configs": {
+            "production": {"name": "prod"},
+        },
+    }
+
+    settings = manager.settings
+    assert settings.name == "prod"
+    assert DEFAULT_KEY not in manager.all_settings
 
 
 # Multi Mode Tests

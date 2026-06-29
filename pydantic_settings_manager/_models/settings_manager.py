@@ -260,7 +260,7 @@ class SettingsManager[T: BaseSettings]:
                 if isinstance(user_config, dict):
                     self._cache[key] = self.settings_cls(**update_dict(user_config, self._cli_args))
 
-            if DEFAULT_KEY not in self._cache:
+            if self._default_key is None and DEFAULT_KEY not in self._cache:
                 self._cache[DEFAULT_KEY] = self.settings_cls(**self._cli_args)
 
         else:

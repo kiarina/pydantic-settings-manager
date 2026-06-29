@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.7.1] - 2026-06-29
+
+### Fixed
+
+- In multi mode, the synthetic `DEFAULT_KEY` settings entry is no longer generated when a `default` key is configured. Previously it was always instantiated, causing settings classes with required fields to raise during cache rebuild even though that entry was never used.
+
 ## [3.7.0] - 2026-06-26
 
 ### Added
