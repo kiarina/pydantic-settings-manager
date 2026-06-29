@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [3.7.2] - 2026-06-29
+
 ### Removed
 
 - No longer re-export `BaseSettings` and `SettingsConfigDict` from the package root. Import them directly from `pydantic_settings` instead.
