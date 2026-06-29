@@ -88,7 +88,7 @@ from pathlib import Path
 
 import click
 import yaml
-from pydantic_settings_manager import load_user_configs
+from pydantic_settings_manager import UserConfigError, load_user_configs
 
 from app import cli, slack
 
@@ -122,15 +122,20 @@ def main(
         # CLI args 全体を更新する場合は、辞書で指定できます
         # cli.settings_manager.cli_args = {"verbose": True, "nested.value": "test
 
-    # CLI 引数 > ユーザー設定 > 環境変数の優先順位で反映された設定クラスを取得
-    settings = cli.settings_manager.get_settings()
+    try:
+        # CLI 引数 > ユーザー設定 > 環境変数の優先順位で反映された設定クラスを取得
+        settings = cli.settings_manager.get_settings()
 
-    if settings.verbose:
-        print("Verbose mode is enabled.")
+        if settings.verbose:
+            click.echo("Verbose mode is enabled.")
 
-    slack.send_slack_message(
-        message, channel=channel, slack_settings_key=slack_settings_key
-    )
+        slack.send_slack_message(
+            message, channel=channel, slack_settings_key=slack_settings_key
+        )
+
+    except UserConfigError as e:
+        click.secho(str(e), fg="red", err=True)
+        raise SystemExit(1) from e
 
 # app/__main__.py
 from app.cli.cli import main
