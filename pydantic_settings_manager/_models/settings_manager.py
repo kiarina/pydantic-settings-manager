@@ -258,16 +258,35 @@ class SettingsManager[T: BaseSettings]:
 
             for key, user_config in self._user_config.items():
                 if isinstance(user_config, dict):
-                    self._cache[key] = self.settings_cls(**update_dict(user_config, self._cli_args))
+                    self._cache[key] = self._build_settings(
+                        key, update_dict(user_config, self._cli_args)
+                    )
 
             if self._default_key is None and DEFAULT_KEY not in self._cache:
-                self._cache[DEFAULT_KEY] = self.settings_cls(**self._cli_args)
+                self._cache[DEFAULT_KEY] = self._build_settings(DEFAULT_KEY, dict(self._cli_args))
 
         else:
             self._cache = {
-                DEFAULT_KEY: self.settings_cls(
-                    **update_dict(self._user_config.get(DEFAULT_KEY, {}), self._cli_args)
+                DEFAULT_KEY: self._build_settings(
+                    DEFAULT_KEY,
+                    update_dict(self._user_config.get(DEFAULT_KEY, {}), self._cli_args),
                 )
             }
 
         self._cache_valid = True
+
+    def _build_settings(self, config_key: str, data: dict[str, Any]) -> T:
+        from pydantic import ValidationError
+
+        try:
+            return self.settings_cls(**data)
+        except ValidationError as e:
+            from .._exceptions.user_config_error import UserConfigError
+            from .._operations.build_user_config_error_message import (
+                build_user_config_error_message,
+            )
+
+            message = build_user_config_error_message(self, config_key, e.errors(include_url=False))
+            if message is None:
+                raise
+            raise UserConfigError(message) from e

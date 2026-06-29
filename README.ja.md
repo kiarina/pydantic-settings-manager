@@ -280,6 +280,7 @@ from pydantic_settings_manager import (
     SettingsKey,
     SettingsManager,
     UserConfig,
+    UserConfigError,
     UserConfigs,
     clear_user_configs,
     generate_user_configs_yaml,
@@ -646,3 +647,26 @@ DEFAULT_KEY: str = "default"
 ```
 
 シングルモードで内部的に使用されるデフォルトキー。
+
+#### `UserConfigError`
+
+```python
+class UserConfigError(ValueError): ...
+```
+
+設定キャッシュの構築時にユーザー設定のバリデーションに失敗した場合（例: 必須フィールドが未設定）に送出されます。生の `pydantic.ValidationError` の代わりに、[`generate_user_configs_yaml`](#generate_user_configs_yaml) と同じコメント付き YAML 形式で問題のフィールドを指し示し、各エラーの説明コメントと、利用できる場合は却下された入力値を併記したメッセージになります。
+
+```text
+Failed to load user settings.
+
+app.slack:
+  configs:
+    default:
+      #--------------------------------------------------
+      # Default Slack Channel: str
+      #   The default channel to send messages to.
+      #   required field is not set
+      default_channel:
+```
+
+モジュールパスは、その設定マネージャーを re-export している公開モジュールの場所に解決されます。元の `pydantic.ValidationError` は `__cause__` として保持されます。公開モジュールパスからマネージャーを特定できない場合は、生の `ValidationError` がそのまま送出されます。`UserConfigError` は `ValueError` を継承しているため、既存の `except ValueError` ハンドラはそのまま機能します。

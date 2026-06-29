@@ -280,6 +280,7 @@ from pydantic_settings_manager import (
     SettingsKey,
     SettingsManager,
     UserConfig,
+    UserConfigError,
     UserConfigs,
     clear_user_configs,
     generate_user_configs_yaml,
@@ -646,3 +647,26 @@ DEFAULT_KEY: str = "default"
 ```
 
 The default key used internally in single mode.
+
+#### `UserConfigError`
+
+```python
+class UserConfigError(ValueError): ...
+```
+
+Raised when a user configuration fails to validate while the settings cache is built (for example, a required field is missing). Instead of a raw `pydantic.ValidationError`, the message points at the offending fields in the same commented-YAML format as [`generate_user_configs_yaml`](#generate_user_configs_yaml), with a comment describing each error and the rejected input value when available:
+
+```text
+Failed to load user settings.
+
+app.slack:
+  configs:
+    default:
+      #--------------------------------------------------
+      # Default Slack Channel: str
+      #   The default channel to send messages to.
+      #   required field is not set
+      default_channel:
+```
+
+The module path is resolved to the public location that re-exports the settings manager. The original `pydantic.ValidationError` is preserved as `__cause__`. When the manager cannot be located by its public module path, the raw `ValidationError` is raised instead. Because `UserConfigError` subclasses `ValueError`, existing `except ValueError` handlers keep working.

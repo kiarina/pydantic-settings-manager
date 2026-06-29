@@ -1,6 +1,7 @@
 from importlib.metadata import version
 
 from ._constants.default_key import DEFAULT_KEY
+from ._exceptions.user_config_error import UserConfigError
 from ._helpers.clear_user_configs import clear_user_configs
 from ._helpers.generate_user_configs_yaml import generate_user_configs_yaml
 from ._helpers.load_user_configs import load_user_configs
@@ -23,6 +24,7 @@ __all__ = [
     "SettingsKey",
     "SettingsManager",
     "UserConfig",
+    "UserConfigError",
     "UserConfigs",
     "clear_user_configs",
     "generate_user_configs_yaml",

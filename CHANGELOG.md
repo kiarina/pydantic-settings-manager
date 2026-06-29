@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Added a runnable `examples/app/` project mirroring the README Quick Start.
 - Added an `examples` dependency group (`click`, `pyyaml`) for running the examples (`uv sync --group examples`).
+- User configuration validation failures now raise a friendly `UserConfigError` (exported from the package root) instead of a raw `pydantic.ValidationError`. The message renders the offending fields in the same commented-YAML format as the configuration template, with a comment describing each error and the rejected input value when available. The module path is resolved to the public location that re-exports the settings manager. The original `ValidationError` is preserved as `__cause__`, and the raw error is still raised when the manager cannot be located by its public module path.
 
 ## [3.7.2] - 2026-06-29
 
