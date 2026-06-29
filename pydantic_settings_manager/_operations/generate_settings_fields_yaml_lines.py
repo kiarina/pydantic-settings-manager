@@ -53,7 +53,7 @@ def generate_settings_fields_yaml_lines(
 
         field_error = field_errors.get(field_name) if field_errors else None
         if field_error is not None:
-            lines.append(f"{comment_prefix}#   {field_error.message}")
+            lines.append(f"{comment_prefix}# ERROR: {field_error.message}")
             if field_error.input is _MISSING_INPUT:
                 lines.append(f"{comment_prefix}{field_name}:")
             else:

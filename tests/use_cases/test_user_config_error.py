@@ -68,7 +68,7 @@ def test_missing_required_field_multi(slack_manager: SettingsManager[SlackSettin
         "      #--------------------------------------------------\n"
         "      # Default Slack Channel: str\n"
         "      #   The default channel to send messages to.\n"
-        "      #   required field is not set\n"
+        "      # ERROR: required field is not set\n"
         "      default_channel:"
     )
     assert isinstance(exc_info.value.__cause__, ValidationError)
@@ -83,7 +83,7 @@ def test_invalid_value_echoes_input_single(server_manager: SettingsManager[Serve
     message = str(exc_info.value)
     assert message.startswith("Failed to load user settings.\n\nuc_server:\n")
     assert "# Port: int" in message
-    assert "#   Input should be a valid integer" in message
+    assert "# ERROR: Input should be a valid integer" in message
     assert message.endswith("  port: not-a-number")
 
 
