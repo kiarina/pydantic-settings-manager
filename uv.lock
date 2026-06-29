@@ -415,7 +415,7 @@ wheels = [
 
 [[package]]
 name = "pydantic-settings-manager"
-version = "3.7.2"
+version = "3.8.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
