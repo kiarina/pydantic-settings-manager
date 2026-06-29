@@ -40,6 +40,7 @@ build-backend = "hatchling.build"
 pydantic_settings_manager = ["py.typed"]
 
 [tool.mypy]
+exclude = ['^examples/app/']
 python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
@@ -90,4 +91,8 @@ dev = [
     "pytest-cov>=5.0.0",
     "mypy>=1.14.1",
     "ruff>=0.12.1",
+]
+examples = [
+    "click>=8.0.0",
+    "pyyaml>=6.0.0",
 ]

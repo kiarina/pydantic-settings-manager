@@ -1,0 +1,15 @@
+# settings.yaml
+app.cli:
+  verbose: true
+
+app.slack:
+  default: group2
+  aliases:
+    hotline: group1
+  configs:
+    group1:
+      bot_token: "xoxb-...(group1)"
+      default_channel: "C...(group1)"
+    group2:
+      bot_token: "xoxb-...(group2)"
+      default_channel: "C...(group2)"
