@@ -7,9 +7,6 @@ init:
 update:
 	uv sync --all-extras --all-groups
 
-upgrade:
-	mise run upgrade --sync
-
 format:
 	uv run ruff check --fix .
 

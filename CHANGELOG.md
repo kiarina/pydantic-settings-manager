@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Raised the minimum `pydantic` requirement to 2.5.0. Older 2.x releases publish no
+  CPython 3.12 wheels, so the previous `>=2.0.0` floor could not actually be resolved
+  on the minimum supported interpreter.
+- Refreshed locked dependencies and pinned the mise version used by CI to 2026.9.1.
+
+### Added
+
+- CI now runs the test suite on Python 3.14 and in a `--resolution lowest-direct` job
+  that installs the lowest declared dependency versions.
+
+### Fixed
+
+- Removed a duplicate `upgrade` target from the `Makefile`.
+
 ## [3.8.0] - 2026-06-29
 
 ### Added
