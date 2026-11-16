@@ -24,9 +24,9 @@ jobs:
             - uses: actions/checkout@v7
 
             - name: Install mise
-              uses: jdx/mise-action@v5.2.7
+              uses: jdx/mise-action@v5.2.9
               with:
-                  version: 2026.11.4
+                  version: 2026.11.8
                   cache: true
                   install: false
 
@@ -73,9 +73,9 @@ jobs:
             - uses: actions/checkout@v7
 
             - name: Install mise
-              uses: jdx/mise-action@v5.2.7
+              uses: jdx/mise-action@v5.2.9
               with:
-                  version: 2026.11.4
+                  version: 2026.11.8
                   cache: true
                   install: false
 
@@ -103,9 +103,9 @@ jobs:
             - uses: actions/checkout@v7
 
             - name: Install mise
-              uses: jdx/mise-action@v5.2.7
+              uses: jdx/mise-action@v5.2.9
               with:
-                  version: 2026.11.4
+                  version: 2026.11.8
                   cache: true
                   install: false
 
