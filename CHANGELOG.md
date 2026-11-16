@@ -11,12 +11,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - Raised the minimum `pydantic` requirement to 2.5.0. Older 2.x releases publish no
   CPython 3.12 wheels, so the previous `>=2.0.0` floor could not actually be resolved
   on the minimum supported interpreter.
-- Refreshed locked dependencies and pinned the mise version used by CI to 2026.9.15.
+- The `pydantic` floor is now set per interpreter: 2.5.0 on Python 3.12, 2.8.2 on 3.13 and
+  2.12.0 on 3.14, the first releases whose `pydantic-core` publishes wheels for each one.
+- Refreshed locked dependencies and pinned the mise version used by CI to 2026.11.4.
 
 ### Added
 
 - CI now runs the test suite on Python 3.14 and in a `--resolution lowest-direct` job
-  that installs the lowest declared dependency versions.
+  that installs the lowest declared dependency versions on Python 3.12, 3.13 and 3.14.
 
 ### Fixed
 

@@ -21,9 +21,12 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    # pydantic 2.5.0 is the first release publishing CPython 3.12 wheels,
-    # which is the minimum interpreter this package supports.
-    "pydantic>=2.5.0",
+    # Each floor is the first pydantic release whose pydantic-core publishes
+    # wheels (including macOS arm64) for that interpreter, so the lowest
+    # declared versions install without a Rust toolchain.
+    "pydantic>=2.5.0; python_version < '3.13'",
+    "pydantic>=2.8.2; python_version == '3.13'",
+    "pydantic>=2.12.0; python_version >= '3.14'",
     "pydantic-settings>=2.0.0",
 ]
 
